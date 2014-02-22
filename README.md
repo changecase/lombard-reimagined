@@ -3,7 +3,7 @@ Recovering the Lombard Reimagined Site
 
 It got hacked. Now we're fixing it.
 
-See the work in progress @ stage.lombardreimagined.com.
+See the work in progress @ http://stage.lombardreimagined.com.
 
 Please, let me know about broken and missing things. I'll keep my 
 eyes out for them. To let me know about issues, use github's
