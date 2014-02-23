@@ -35,4 +35,4 @@ Examples of _bad passwords_:
 - 23nv9jvo=23jfFoaljv39460asBdfnasrnhonz;s
 
 If the password you used for this site was used on **any** other account of yours, 
-change the password there two. Don't open yourself up to hacking.
+change the password there too. Don't open yourself up to hacking.
