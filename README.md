@@ -14,3 +14,25 @@ information (like database access), I've made this a private repo. That
 means that you'll need a github account and I'll need to grant you 
 access to the repo. Let me know you want to help by sending an [email](mailto:jeff.ja@gmail.com)
 with your github account info.
+
+
+News
+----
+
+### Feb 22, 2014
+
+[Admin pages](http://lombardreimagined.com/wp-login.php) are back! 
+Please change your passwords.
+
+It is a comic strip, but [xkcd](http://xkcd.com/936/) has an excellent tutorial 
+in creating fantastic passwords. Please, use a good password.
+
+Examples of _bad passwords_:
+
+- lombardreimagined
+- password
+- abc123
+- 23nv9jvo=23jfFoaljv39460asBdfnasrnhonz;s
+
+If the password you used for this site was used on **any** other account of yours, 
+change the password there two. Don't open yourself up to hacking.
