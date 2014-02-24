@@ -1,6 +1,6 @@
 <?php
 /**
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
 get_header(); ?>
 

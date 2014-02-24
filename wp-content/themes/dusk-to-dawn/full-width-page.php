@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Full-width, no sidebar
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
 get_header(); ?>
 
@@ -12,7 +12,7 @@ get_header(); ?>
 
 			<?php get_template_part( 'content', 'page' ); ?>
 
-			<?php comments_template( '', true ); ?>
+			<?php comments_template(); ?>
 
 		<?php endwhile; ?>
 

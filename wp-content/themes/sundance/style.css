@@ -2,12 +2,12 @@
 Theme Name: Sundance
 Theme URI: http://theme.wordpress.com/themes/sundance/
 Author: Automattic
-Author URI: http://automattic.com/
+Author URI: http://theme.wordpress.com/
 Description: A free video theme brought to you by the folks at Automattic. Despite its minimalist design, Sundance was crafted with clean, elegant typography and close attention to detail. The home page offers a featured video carousel. It supports the video post format, widgets, custom background, custom header, custom menus, and a custom link feature for your social media pages.
-Version: 1.0
-License: GNU General Public License
-License URI: license.txt
-Tags: gray, light, one-column, two-columns, right-sidebar, fixed-width, custom-background, custom-header, custom-menu, full-width-template, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready
+Version: 1.1.2
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tags: gray, light, one-column, two-columns, right-sidebar, fixed-layout, responsive-layout, custom-background, custom-colors, custom-header, custom-menu, full-width-template, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready
 
 This theme, like WordPress, is licensed under the GPL.
 Use it to make something cool, have fun, and share what you've learned with others.
@@ -178,8 +178,13 @@ textarea {
 	font-weight: 400;
 	line-height: 1.5714285714;
 }
-body {
+/* Add a wrapper when background image is set to maintain the readability */
+body.custom-background #page {
 	background: url(images/bg.jpg) repeat 0 0;
+}
+/* Remove the wrapper when background is a solid color and background image is empty */
+body.custom-background.custom-background-image-empty #page {
+	background: none;
 }
 /* Headings */
 h1,h2,h3,h4,h5,h6 {
@@ -267,6 +272,12 @@ blockquote {
 	border-left: 5px solid #267172;
 	font-style: italic;
 	padding: 0 1.5714285714em;
+}
+.quote-caption {
+	border-left: 5px solid #267172;
+  	margin-bottom: 1.5em;
+    margin-top: -1.6em;
+    padding: 1em 1.5em 0;
 }
 blockquote em, blockquote i, blockquote cite {
 	font-style: normal;
@@ -408,6 +419,7 @@ input::-moz-focus-inner { /* Corrects inner padding and border displayed oddly i
 	padding: 0;
 }
 input[type=text],
+input[type=email],
 input[type=password],
 textarea {
 	color: #666;
@@ -416,11 +428,13 @@ textarea {
 }
 input[type=text]:focus,
 input[type=password]:focus,
+input[type=email]:focus,
 textarea:focus {
 	color: #111;
 }
 input[type=text],
-input[type=password] {
+input[type=password],
+input[type=email] {
 	padding: 5px;
 }
 input[type=password] {
@@ -578,15 +592,13 @@ a:active {
 	background: url(images/loader.png) no-repeat 50% 200px;
 }
 .featured-posts-wrapper {
-	background-color: #fff;
-	border: 1px solid #e4dfe8;
+	border: 7px solid #fff;
 	-webkit-box-shadow: (228, 223, 232, 0.5) 1px 1px 0px;
 	-moz-box-shadow: (228, 223, 232, 0.5) 1px 1px 0px;
 	box-shadow: rgba(228, 223, 232, 0.5) 1px 1px 0px;
 	clear: both;
 	margin: -0.8571428571em 0 4.7142857142em 11.17886178%;
 	opacity: 0;
-	padding: 6px;
 }
 .featured-posts-outer {
 	position: relative;
@@ -601,7 +613,6 @@ a:active {
 	margin: 0;
 }
 .featured-posts .featured {
-	float: left;
 	width: 100%;
 }
 .featured-posts .slides .hentry {
@@ -664,7 +675,7 @@ a:active {
 .flex-direction-nav li a:hover {
 	opacity: 0.8;
 }
-.flex-direction-nav li .next {
+.flex-direction-nav li .flex-next {
 	background-position: 0 -28px;
 }
 .flex-direction-nav li .disabled {
@@ -702,7 +713,7 @@ a:active {
 .flex-control-nav li a:hover {
 	background-position: 0 -12px;
 }
-.flex-control-nav li a.active {
+.flex-control-nav li a.flex-active {
 	background-position: 0 -24px;
 	cursor: default;
 }
@@ -722,11 +733,10 @@ a:active {
 }
 .avatar {
 	background-color: #fff;
-	border: 1px solid #e4dfe8;
 	-webkit-box-shadow: (228, 223, 232, 0.5) 1px 1px 0px;
 	-moz-box-shadow: (228, 223, 232, 0.5) 1px 1px 0px;
 	box-shadow: rgba(228, 223, 232, 0.5) 1px 1px 0px;
-	padding: 6px;
+	padding: 7px;
 }
 .entry-header .avatar {
 	float: left;
@@ -818,12 +828,10 @@ a:active {
 img[class*="align"],
 img[class*="wp-image-"],
 #content .gallery .gallery-icon img {/* Add fancy borders to all WordPress-added images but not things like badges and icons and the like */
-	background-color: #fff;
-	border: 1px solid #e4dfe8;
+	border: 7px solid #fff;
 	-webkit-box-shadow: (228, 223, 232, 0.5) 1px 1px 0px;
 	-moz-box-shadow: (228, 223, 232, 0.5) 1px 1px 0px;
 	box-shadow: rgba(228, 223, 232, 0.5) 1px 1px 0px;
-	padding: 6px;
 }
 .featured-content img {/* Reset image style for the ones in the featured content area */
 	background-color: transparent;
@@ -843,7 +851,8 @@ img[class*="wp-image-"],
 }
 .entry-content img,
 .comment-content img,
-img.size-full {
+img.size-full,
+.post-format-content img {
 	max-width: 98%;
 }
 .featured-content img,
@@ -855,7 +864,8 @@ img.size-full {
 .site-header img,
 .entry-content img,
 img[class*="align"],
-img[class*="wp-image-"] {
+img[class*="wp-image-"],
+.post-format-content img {
 	height: auto; /* Make sure images with WordPress-added height and width attributes are scaled correctly */
 }
 img.alignleft,
@@ -913,6 +923,9 @@ p img,
 #content .gallery dd {
 	margin: 0;
 }
+.mejs-container {
+	margin-bottom: 1.1em;
+}
 embed,
 iframe,
 object,
@@ -922,16 +935,21 @@ video {
 video {
 	height: auto;
 }
+.video-wrapper embed,
+.video-wrapper iframe,
+.video-wrapper object {
+	display: block;
+	margin: auto;
+}
 .entry-content .video-player,
 .entry-content [class*="embed-"] {
 	background-color: #fff;
-	border: 1px solid #e4dfe8;
 	-webkit-box-shadow: (228, 223, 232, 0.5) 1px 1px 0px;
 	-moz-box-shadow: (228, 223, 232, 0.5) 1px 1px 0px;
 	box-shadow: rgba(228, 223, 232, 0.5) 1px 1px 0px;
 	margin: 0 0 1.5714285714em 0;
 	max-width: 98%;
-	padding: 6px;
+	padding: 7px;
 }
 /* VideoPress */
 .featured-content .video-player {
@@ -1217,36 +1235,6 @@ video {
 .widget_tag_cloud div {
  	word-wrap: break-word;
 }
-/* Flickr Widget (WP.com) */
-.widget_flickr #flickr_badge_uber_wrapper a {
-	color: #267172 !important;
-}
-.widget_flickr #flickr_badge_uber_wrapper a:hover {
-	text-decoration: underline !important;
-}
-.widget_flickr #flickr_badge_wrapper {
-	background-color: transparent !important;
-	border: none !important;
-}
-.widget_flickr table {
-	margin: 0 !important;
-}
-.widget_flickr .flickr-size-thumbnail {
-	margin: 0 auto;
-}
-.widget_flickr .flickr-size-thumbnail br,
-.widget_flickr .flickr-size-small br {
-	display: none;
-}
-.widget_flickr .flickr-size-thumbnail img {
-	display: block;
-	margin-bottom: 1em;
-}
-.widget_flickr .flickr-size-small img {
-	display: block;
-	margin-bottom: 0.7142857142em;
-	max-width: 100%;
-}
 /* Gravater Widget */
 .widget_gravatar p img {
 	margin: 0;
@@ -1374,10 +1362,10 @@ video {
 		position: absolute;
 		top: 0;
 	}
-	.flex-direction-nav li .prev {
+	.flex-direction-nav li .flex-prev {
 		margin: 0 0 0 -6px;
 	}
-	.flex-direction-nav li .next{
+	.flex-direction-nav li .flex-next{
 		left: auto;
 		margin: 0 -6px 0 0;
 		right: 0;
@@ -1546,4 +1534,33 @@ video {
 }
 #ie8 .syndicate li:first-child {
 	margin-left: 0;
+}
+
+
+/* =Jetpack: Infinite Scroll
+-------------------------------------------------------------- */
+.infinite-scroll #content {
+	margin-bottom: 50px;
+}
+.infinite-scroll #content .infinite-wrap {
+	border-top: none;
+}
+.infinite-scroll .infinite-loader,
+.infinite-scroll #infinite-handle span {
+	margin-left: 14.28571428%;
+}
+/**
+* Elements to hide:
+* (footer widgets, post navigation, regular footer)
+*/
+.infinite-scroll #nav-below,
+.infinite-scroll #nav-above,
+.infinite-scroll.neverending #colophon {
+	display: none;
+}
+/**
+* Hooks to infinity-end body class to restore footer
+*/
+.infinity-end.neverending #colophon {
+	display: block;
 }

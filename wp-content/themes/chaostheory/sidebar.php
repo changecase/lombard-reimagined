@@ -1,7 +1,6 @@
 <?php
 /**
- * @package WordPress
- * @subpackage ChaosTheory
+ * @package ChaosTheory
  */
 ?>
 <div id="sidebar" class="clearfix">

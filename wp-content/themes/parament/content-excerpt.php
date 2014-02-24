@@ -2,13 +2,9 @@
 /**
  * @package Parament
  */
-
-$class = '';
-if ( '' != get_edit_post_link() )
-	$class = 'has-byline';
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class( $class ); ?>>
+<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 
 	<div class="title">
 		<?php the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' ); ?>

@@ -4,7 +4,7 @@
  */
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'contain has-byline' ); ?>>
+<article id="post-<?php the_ID(); ?>" <?php post_class( 'contain' ); ?>>
 
 	<div class="title">
 		<?php if ( is_singular() ) : ?>
@@ -27,7 +27,6 @@
 		</div>
 
 		<div class="entry-meta">
-
 			<?php
 				/* translators: used between list items, there is a space after the comma. */
 				$categories_list = get_the_category_list( __( ', ', 'parament' ) );
@@ -58,8 +57,8 @@
 	</div><!-- end title -->
 
 	<div class="entry-content">
-		<?php the_content( __( 'Continue Reading', 'parament' ) ); ?>
 		<?php
+			the_content( __( 'Continue Reading', 'parament' ) );
 			wp_link_pages( array(
 				'after'       => '</div>',
 				'before'      => '<div class="entry-navigation">',
@@ -70,11 +69,11 @@
 	</div>
 
 	<?php if ( is_single() ) : ?>
-		<nav id="post-nav" class="contain">
-			<h1 class="assistive-text"><?php _e( 'Posts navigation', 'parament' ); ?></h1>
-			<?php previous_post_link( '<div class="nav-older">&larr; %link</div>' ); ?>
-			<?php next_post_link( '<div class="nav-newer">%link &rarr;</div>' ); ?>
-		</nav>
+	<nav id="post-nav" class="contain">
+		<h1 class="assistive-text"><?php _e( 'Posts navigation', 'parament' ); ?></h1>
+		<?php previous_post_link( '<div class="nav-older">&larr; %link</div>' ); ?>
+		<?php next_post_link( '<div class="nav-newer">%link &rarr;</div>' ); ?>
+	</nav>
 	<?php endif; ?>
 
 </article>

@@ -1,12 +1,20 @@
 <?php
 /**
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
+$format = get_post_format();
+if ( false === $format )
+	$format = 'standard';
 ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
 		<?php if ( 'post' == get_post_type() ) : ?>
 		<div class="entry-meta">
+			<?php // Print entry format if the post is not standard format. ?>
+			<?php if ( 'standard' != $format ) : ?>
+				<span class="entry-format"><a href="<?php echo esc_url( get_post_format_link( get_post_format() ) ); ?>" title="<?php echo esc_attr( sprintf( __( 'All %s posts', 'dusktodawn' ), get_post_format_string( get_post_format() ) ) ); ?>"><?php echo get_post_format_string( get_post_format() ); ?></a></span>
+			<?php endif; ?>
+
 			<?php if ( ! is_singular() && is_sticky() ) : ?>
 				<?php _e( 'Featured', 'dusktodawn' ); ?>
 			<?php else : ?>
@@ -14,7 +22,17 @@
 			<?php endif; ?>
 		</div><!-- .entry-meta -->
 		<?php endif; ?>
-		<h1 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php printf( esc_attr__( 'Permalink to %s', 'dusktodawn' ), the_title_attribute( 'echo=0' ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h1>
+
+		<?php // Don't display post titles if the post is either aside or quote format. ?>
+		<?php if ( 'aside' != $format && 'quote' != $format ) : ?>
+		<h1 class="entry-title">
+			<?php if ( is_single() ) : ?>
+				<?php the_title(); ?>
+			<?php else : ?>
+				<a href="<?php the_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a>
+			<?php endif; ?>
+		</h1>
+		<?php endif; ?>
 	</header><!-- .entry-header -->
 
 	<?php if ( has_post_thumbnail() ) : the_post_thumbnail( 'dusktodawn-featured-image', array( 'class' => 'featured-image' ) ); endif; ?>
@@ -36,4 +54,4 @@
 
 	<?php dusktodawn_author_info(); ?>
 
-</article><!-- #post-<?php the_ID(); ?> -->
+</article><!-- #post-## -->

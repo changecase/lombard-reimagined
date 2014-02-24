@@ -54,7 +54,8 @@ function bouquet_theme_options_do_page() {
 
 	?>
 	<div class="wrap">
-		<?php screen_icon(); echo "<h2>" . get_current_theme() . __( ' Theme Options', 'bouquet' ) . "</h2>"; ?>
+		<?php $theme_name = function_exists( 'wp_get_theme' ) ? wp_get_theme() : get_current_theme(); ?>
+		<?php screen_icon(); echo "<h2>" . $theme_name . __( ' Theme Options', 'bouquet' ) . "</h2>"; ?>
 
 		<?php if ( false !== $_REQUEST['settings-updated'] ) : ?>
 		<div class="updated fade"><p><strong><?php _e( 'Options saved', 'bouquet' ); ?></strong></p></div>

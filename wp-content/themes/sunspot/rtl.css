@@ -235,8 +235,8 @@ textarea {
 ----------------------------------------------- */
 
 #ie9 .sunstrip,
-#ie9 .sunstrip-small, 
-#ie8 .sunstrip, 
+#ie9 .sunstrip-small,
+#ie8 .sunstrip,
 #ie8 .sunstrip-small {
 	background: url("images/ie-sunstrip-rtl.png") repeat-y;
 }

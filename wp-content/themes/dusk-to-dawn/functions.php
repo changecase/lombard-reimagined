@@ -1,29 +1,44 @@
 <?php
 /**
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
 
 // Load scripts.
 function dusktodawn_scripts() {
-	if ( ! is_singular() || ( is_singular() && 'audio' == get_post_format() ) )
-		wp_enqueue_script( 'audio-player', get_template_directory_uri() . '/js/audio-player.js', array( 'jquery' ), '20110801' );
+	wp_enqueue_style( 'dusktodawn', get_stylesheet_uri() );
+
+	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) )
+		wp_enqueue_script( 'comment-reply' );
 }
 add_action( 'wp_enqueue_scripts', 'dusktodawn_scripts' );
+
+/**
+ * Audio helper script.
+ *
+ * If an audio shortcode exists we will enqueue javascript
+ * that replaces all non-supported audio player instances
+ * with text links.
+ *
+ * @uses dusktodawn_has_shortcode();
+ */
+function dusktodawn_audio_script() {
+	if ( dusktodawn_has_shortcode( 'audio' ) )
+		return;
+
+	if ( ! is_singular() ||  has_post_format( 'audio' ) )
+		wp_enqueue_script( 'dusktodawn-audio', get_template_directory_uri() . '/js/audio.js', array(), '20120315' );
+}
+add_action( 'wp_enqueue_scripts', 'dusktodawn_audio_script' );
 
 // Set the content width based on the theme's design and stylesheet.
 if ( ! isset( $content_width ) )
 	$content_width = 474;
 
-if ( ! function_exists( 'dusktodawn_setup' ) ):
 
+if ( ! function_exists( 'dusktodawn_setup' ) ):
 function dusktodawn_setup() {
 
 	load_theme_textdomain( 'dusktodawn', get_template_directory() . '/languages' );
-
-	$locale = get_locale();
-	$locale_file = get_template_directory() . "/languages/$locale.php";
-	if ( is_readable( $locale_file ) )
-		require_once( $locale_file );
 
 	// Add default posts and comments RSS feed links to head
 	add_theme_support( 'automatic-feed-links' );
@@ -37,86 +52,43 @@ function dusktodawn_setup() {
 		'sidebar-menu' => __( 'Sidebar Menu', 'dusktodawn' ),
 	) );
 
-	// Add support for the Aside and Gallery Post Formats
-	add_theme_support( 'post-formats', array( 'aside', 'gallery', 'image', 'quote', 'link', 'chat', 'audio' ) );
-
-	// Load theme options
-	require_once( dirname( __FILE__ ) . '/inc/theme-options.php' );
+	// Add support for Post Formats
+	add_theme_support( 'post-formats', array( 'aside', 'gallery', 'image', 'video', 'quote', 'link', 'chat', 'audio' ) );
 }
 endif; // dusktodawn_setup
 
 // Tell WordPress to run dusktodawn_setup() when the 'after_setup_theme' hook is run.
 add_action( 'after_setup_theme', 'dusktodawn_setup' );
+/**
+ * Setup the WordPress core custom background feature.
+ *
+ * Use add_theme_support to register support for WordPress 3.4+
+ * as well as provide backward compatibility for previous versions.
+ * Use feature detection of wp_get_theme() which was introduced
+ * in WordPress 3.4.
+ *
+ * Hooks into the after_setup_theme action.
+ */
+function dusktodawn_register_custom_background() {
+	$args = array(
+		'default-color' => '',
+		'default-image' => '',
+	);
 
-// Custom Header.
-define( 'HEADER_TEXTCOLOR', '497ca7' );
+	$args = apply_filters( 'coraline_custom_background_args', $args );
 
-// By leaving empty, we default to random image rotation.
-define( 'HEADER_IMAGE', '' );
-
-define( 'HEADER_IMAGE_WIDTH', 870 );
-define( 'HEADER_IMAGE_HEIGHT', 220 );
-
-add_custom_image_header( 'dusktodawn_header_style', 'dusktodawn_admin_header_style' );
-
-// Styles the header image.
-function dusktodawn_header_style() {
-
-	// If no custom options for text are set, let's bail
-	// get_header_textcolor() options: HEADER_TEXTCOLOR is default, hide text (returns 'blank') or any hex value
-	if ( HEADER_TEXTCOLOR == get_header_textcolor() )
-		return;
-	// If we get this far, we have custom styles. Let's do this.
-	?>
-	<style type="text/css">
-	<?php
-		// Has the text been hidden?
-		if ( 'blank' == get_header_textcolor() ) :
-	?>
-		#branding hgroup,
-		#site-title,
-		#site-description {
-			position: absolute !important;
-			clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
-			clip: rect(1px, 1px, 1px, 1px);
-		}
-		#page {
-			padding: 132px 0 0 0;
-		}
-	<?php
-		// If the user has set a custom color for the text use that
-		else :
-	?>
-		#site-title a {
-			color: #<?php echo get_header_textcolor(); ?>
-		}
-	<?php endif; ?>
-	</style>
-	<?php
+	if ( function_exists( 'wp_get_theme' ) ) {
+		add_theme_support( 'custom-background', $args );
+	} else {
+		define( 'BACKGROUND_COLOR', $args['default-color'] );
+		define( 'BACKGROUND_IMAGE', $args['default-image'] );
+		add_custom_background();
+	}
 }
-
-// Styles the header image displayed on the Appearance > Header admin panel.
-function dusktodawn_admin_header_style() {
-?>
-	<style type="text/css">
-		#headimg {
-			width: <?php echo HEADER_IMAGE_WIDTH; ?>px;
-			height: <?php echo HEADER_IMAGE_HEIGHT; ?>px;
-		}
-        #heading,
-        #headimg h1,
-        #headimg #desc {
-        	display: none;
-        }
-		</style>
-<?php
-}
-
-// Add custom background support.
-add_custom_background();
+add_action( 'after_setup_theme', 'dusktodawn_register_custom_background' );
 
 function dusktodawn_custom_background() {
-	if ( '' != get_background_image() ) { ?>
+	if ( '' != get_background_image() ) : ?>
 		<style type="text/css">
 			#super-super-wrapper,
 			#super-wrapper,
@@ -126,14 +98,14 @@ function dusktodawn_custom_background() {
 				filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 			}
 		</style>
-	<?php } elseif ( '' != get_background_color() ) { ?>
+	<?php elseif ( '' != get_background_color() ) : ?>
 		<style type="text/css">
 			#super-super-wrapper {
 				background: none;
 				filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 			}
 		</style>
-	<?php }
+	<?php endif;
 }
 add_action( 'wp_head', 'dusktodawn_custom_background' );
 
@@ -147,12 +119,12 @@ add_filter( 'wp_page_menu_args', 'dusktodawn_page_menu_args' );
 // Register widgetized area and update sidebar with default widgets
 function dusktodawn_widgets_init() {
 	register_sidebar( array(
-		'name' => __( 'Sidebar 1', 'dusktodawn' ),
-		'id' => 'sidebar-1',
+		'name'          => __( 'Sidebar 1', 'dusktodawn' ),
+		'id'            => 'sidebar-1',
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
-		'after_widget' => "</aside>",
-		'before_title' => '<h1 class="widget-title">',
-		'after_title' => '</h1>',
+		'after_widget'  => '</aside>',
+		'before_title'  => '<h1 class="widget-title">',
+		'after_title'   => '</h1>',
 	) );
 }
 add_action( 'widgets_init', 'dusktodawn_widgets_init' );
@@ -301,7 +273,7 @@ function dusktodawn_author_info() {
 				<?php echo get_avatar( get_the_author_meta( 'user_email' ), apply_filters( 'dusktodawn_author_bio_avatar_size', 50 ) ); ?>
 			</div><!-- #author-avatar -->
 			<div id="author-description">
-				<h2><?php esc_html( printf( __( 'About %s', 'dusktodawn' ), get_the_author() ) ); ?></h2>
+				<h2><?php echo sprintf( __( 'About %s', 'dusktodawn' ), get_the_author() ); ?></h2>
 				<?php the_author_meta( 'description' ); ?>
 				<div id="author-link">
 					<a href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>" rel="author">
@@ -315,70 +287,141 @@ function dusktodawn_author_info() {
 
 // Filter in a link to a content ID attribute for the next/previous image links on image attachment pages
 function dusktodawn_enhanced_image_navigation( $url ) {
-	global $post;
-	if ( wp_attachment_is_image( $post->ID ) )
+	global $wp_rewrite;
+	$post_parent = get_post()->post_parent;
+
+	if ( wp_attachment_is_image() && ( $wp_rewrite->using_permalinks() && ( $post_parent > 0 ) && ( $post_parent != get_the_ID() ) ) )
 		$url = $url . '#main';
+
 	return $url;
 }
 add_filter( 'attachment_link', 'dusktodawn_enhanced_image_navigation' );
 
 // Enqueue font styles.
 function dusktodawn_fonts() {
-	wp_enqueue_style( 'ubuntu', 'http://fonts.googleapis.com/css?family=Ubuntu:300,400,700' );
+	$protocol = is_ssl() ? 'https' : 'http';
+	wp_enqueue_style( 'ubuntu', "$protocol://fonts.googleapis.com/css?family=Ubuntu:300,400,700" );
 }
 add_action( 'wp_enqueue_scripts', 'dusktodawn_fonts' );
 
 /**
- * Return the URL for the first link found in this post.
+ * Appends post title to Aside and Quote posts
  *
- * @param string the_content Post content, falls back to current post content if empty.
- * @return string|bool URL or false when no link is present.
+ * @param string $content
+ * @return string
  */
-function dusktodawn_url_grabber( $the_content = '' ) {
-	if ( empty( $the_content ) )
-		$the_content = get_the_content();
-	if ( ! preg_match( '/<a\s[^>]*?href=[\'"](.+?)[\'"]/is', $the_content, $matches ) )
-		return false;
+function dusktodawn_conditional_title( $content ) {
 
-	return esc_url_raw( $matches[1] );
+	if ( has_post_format( 'aside' ) || has_post_format( 'quote' ) ) {
+		if ( ! is_singular() )
+			$content .= the_title( '<h1 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h1>', false );
+		else
+			$content .= the_title( '<h1 class="entry-title">', '</h1>', false );
+	}
+
+	return $content;
+}
+add_filter( 'the_content', 'dusktodawn_conditional_title', 0 );
+
+/**
+ * Filters wp_title to print a neat <title> tag based on what is being viewed.
+ *
+ * @since Dusk To Dawn 1.1
+ */
+function dusktodawn_wp_title( $title, $sep ) {
+	global $page, $paged;
+
+	if ( is_feed() )
+		return $title;
+
+	// Add the blog name
+	$title .= get_bloginfo( 'name' );
+
+	// Add the blog description for the home/front page.
+	$site_description = get_bloginfo( 'description', 'display' );
+	if ( $site_description && ( is_home() || is_front_page() ) )
+		$title .= " $sep $site_description";
+
+	// Add a page number if necessary:
+	if ( $paged >= 2 || $page >= 2 )
+		$title .= " $sep " . sprintf( __( 'Page %s', 'dusktodawn' ), max( $paged, $page ) );
+
+	return $title;
+}
+add_filter( 'wp_title', 'dusktodawn_wp_title', 10, 2 );
+
+if ( ! function_exists( 'dusktodawn_audio_player_class' ) ) :
+/**
+ * Get a short-form mime type for an audio file to display as a class attribute.
+ *
+ * @param int ID of an attachment
+ * @return string A short representation of the file's mime type.
+ */
+function dusktodawn_audio_player_class( $post_id ) {
+	$mime = get_post_mime_type( $post_id );
+	$short = array(
+		'audio/mpeg' => 'mp3',
+		'audio/ogg'  => 'ogg',
+		'audio/wav'  => 'wav',
+	);
+
+	if ( isset( $short[ $mime ] ) )
+		return ' ' . $short[ $mime ];
+
+	return '';
+}
+endif;
+
+if ( ! function_exists( 'dusktodawn_has_shortcode' ) ) :
+/**
+ * Check to see whether a given shortcode exists.
+ *
+ * @param string $name The name of the shortcode.
+ * @return bool True if shortcode exists; false otherwise.
+ */
+function dusktodawn_has_shortcode( $name ) {
+	global $shortcode_tags;
+
+	return ( ! is_string( $name ) || ! isset( $shortcode_tags[ $name ] ) );
+}
+endif;
+
+/**
+ * Deprecated.
+ *
+ * This function is kept just in case it has
+ * been used in a child theme. It does nothing.
+ */
+function dusktodawn_add_audio_support() {
+	_deprecated_function( __FUNCTION__ , '1.2' );
 }
 
 /**
- * Return the first audio file found for a post.
- *
- * @param int post_id ID for parent post
- * @return boolean|string Path to audio file
+ * Load up our functions for grabbing content from posts.
  */
-function dusktodawn_audio_grabber( $post_id ) {
-	global $wpdb;
+require( get_template_directory() . '/content-grabbers.php' );
 
-	$first_audio = $wpdb->get_var( $wpdb->prepare( "SELECT guid FROM $wpdb->posts WHERE post_parent = %d AND post_type = 'attachment' AND INSTR(post_mime_type, 'audio') ORDER BY menu_order ASC LIMIT 0,1", (int) $post_id ) );
+/**
+ * Implement the Custom Header feature.
+ */
+require get_template_directory() . '/inc/custom-header.php';
 
-	if ( ! empty( $first_audio ) )
-		return $first_audio;
+/**
+ * Load theme options.
+ */
+require get_template_directory() . '/inc/theme-options.php';
 
-	return false;
-}
+/**
+ * Load Jetpack compatibility file.
+ */
+require get_template_directory() . '/inc/jetpack.compat.php';
 
-// Add in-head JS block for audio post format.
-function dusktodawn_add_audio_support() {
-	if ( ! is_singular() || ( is_singular() && 'audio' == get_post_format() ) ) {
-?>
-		<script type="text/javascript">
-			AudioPlayer.setup( "<?php echo get_template_directory_uri(); ?>/swf/player.swf", {
-				bg: "0b0e18",
-				leftbg: "0b0e18",
-				rightbg: "0b0e18",
-				track: "0b0e18",
-				text: "ffffff",
-				lefticon: "ffffff",
-				righticon: "ffffff",
-				border: "0b0e18",
-				tracker: "666666",
-				loader: "ffffff"
-			});
-		</script>
-<?php }
-}
-add_action( 'wp_head', 'dusktodawn_add_audio_support' );
-// This theme was built with PHP, Semantic HTML, CSS, love, and a Toolbox.
+/**
+ * Load WP.com specific functions.
+ */
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+	require get_template_directory() . '/inc/wpcom.php';
+
+/**
+ * This theme was built with PHP, Semantic HTML, CSS, love, and a Toolbox.
+ */

@@ -1,9 +1,10 @@
 <?php
 /**
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
 ?>
 <div id="secondary" class="widget-area" role="complementary">
+	<?php do_action( 'before_sidebar' ); ?>
 
 	<?php if ( has_nav_menu( 'sidebar-menu' ) ) : ?>
 		<nav id="access" role="navigation">

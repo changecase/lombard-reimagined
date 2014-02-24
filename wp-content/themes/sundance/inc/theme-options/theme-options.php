@@ -181,7 +181,7 @@ function sundance_theme_options_render_page() {
 	?>
 	<div class="wrap">
 		<?php screen_icon(); ?>
-		<h2><?php printf( __( '%s Theme Options', 'sundance' ), get_current_theme() ); ?></h2>
+		<h2><?php printf( __( '%s Theme Options', 'sundance' ), wp_get_theme() ); ?></h2>
 		<?php settings_errors(); ?>
 
 		<form method="post" action="options.php">

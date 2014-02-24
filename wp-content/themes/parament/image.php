@@ -2,9 +2,8 @@
 /**
  * @package Parament
  */
-?>
 
-<?php get_header(); ?>
+get_header(); ?>
 
 <div id="container" class="contain">
 	<div id="main" role="main" class="image-template">
@@ -13,7 +12,7 @@
 
 	<?php while ( have_posts() ) : the_post(); ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class( 'has-byline' ); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 
 		<div class="title">
 			<?php the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' ); ?>
@@ -34,9 +33,9 @@
 
 		<div class="entry-content">
 			<div id="attachment-image">
-				<?php echo wp_get_attachment_image( $post->ID, array( 917, 917 ) ); ?>
+				<?php echo wp_get_attachment_image( get_the_ID(), array( 917, 917 ) ); ?>
 			</div>
-			<?php if ( '' != get_post_field( 'post_excerpt', get_the_ID() ) ) : ?>
+			<?php if ( has_excerpt() ) : ?>
 				<p><?php the_excerpt(); ?></p>
 			<?php endif; ?>
 			<?php the_content(); ?>
@@ -56,7 +55,7 @@
 
 	<?php endwhile; ?>
 
-	<?php else : ?>
+<?php else : ?>
 
 		<?php get_template_part( 'content', '404' ); ?>
 

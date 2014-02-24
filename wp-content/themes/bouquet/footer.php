@@ -4,8 +4,7 @@
  *
  * Contains the closing of the id=main div and all content after
  *
- * @package WordPress
- * @subpackage Bouquet
+ * @package Bouquet
  */
 ?>
 
@@ -15,7 +14,10 @@
 <footer id="colophon" role="contentinfo">
 	<div id="site-generator-wrapper">
 		<div id="site-generator">
-			<a href="http://wordpress.org/" rel="generator">Proudly powered by WordPress</a><span class="sep"> | </span><?php printf( __( 'Theme: %1$s by %2$s.', 'bouquet' ), 'Bouquet', '<a href="http://automattic.com/" rel="designer">Automattic</a>' ); ?>
+			<?php do_action( 'bouquet_credits' ); ?>
+			<a href="<?php echo esc_url( __( 'http://wordpress.org/', 'bouquet' ) ); ?>" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'bouquet' ); ?>" rel="generator"><?php printf( __( 'Proudly powered by %s', 'bouquet' ), 'WordPress' ); ?></a>
+			<span class="sep"> | </span>
+			<?php printf( __( 'Theme: %1$s by %2$s.', 'bouquet' ), 'Bouquet', '<a href="http://automattic.com/" rel="designer">Automattic</a>' ); ?>
 		</div><!-- #site-generator -->
 	</div><!-- #site-generator-wrapper -->
 </footer><!-- #colophon -->

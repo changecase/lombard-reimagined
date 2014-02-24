@@ -1,6 +1,6 @@
 <?php
 /**
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
 ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
@@ -15,4 +15,4 @@
 		<?php wp_link_pages( array( 'before' => '<div class="page-link">' . __( 'Pages:', 'dusktodawn' ), 'after' => '</div>' ) ); ?>
 		<?php edit_post_link( __( 'Edit', 'dusktodawn' ), '<br /><span class="edit-link">', '</span>' ); ?>
 	</div><!-- .entry-content -->
-</article><!-- #post-<?php the_ID(); ?> -->
+</article><!-- #post-## -->

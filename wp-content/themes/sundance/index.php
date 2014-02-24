@@ -19,15 +19,6 @@ get_header(); ?>
 
 			<?php if ( have_posts() ) : ?>
 
-				<?php
-					// Exclude the featured posts from the loop
-					global $featured_post_id;
-					query_posts( array(
-						'order' => 'DESC',
-						'paged' => $paged,
-						'post__not_in' => $featured_post_id
-					) );
-				?>
 				<?php while ( have_posts() ) : the_post(); ?>
 
 					<?php

@@ -1,5 +1,21 @@
-Colors
-======
+== Changelog ==
+
+= 1.3 - Jun 07 2013 =
+* Updated license.
+* Added forward compat with 3.6.
+* Enqueues scripts and styles via callback.
+* Uses a filter to modify the output of wp_title().
+
+= 1.2 - Nov 05 2012 =
+* Added hardcoded IDs and classes to fallback widgets.
+* Add Jetpack compatibility file.
+* Hide empty #menu using :empty selector.
+* Updated screenshot for HiDPI support.
+
+= 1.1 - Nov 08 2011 =
+* Initial release.
+
+== Colors ==
 
 The following colors are used throughout Parament:
 

@@ -175,13 +175,3 @@ function sunspot_category_transient_flusher() {
 }
 add_action( 'edit_category', 'sunspot_category_transient_flusher' );
 add_action( 'save_post', 'sunspot_category_transient_flusher' );
-
-/**
- * Enqueue Sunspot Fonts
- *
- * @since Sunspot 1.0
- */
-function sunspot_fonts() {
-	wp_enqueue_style( 'ubuntu', 'http://fonts.googleapis.com/css?family=Ubuntu:400,300' );
-}
-add_action( 'wp_enqueue_scripts', 'sunspot_fonts' );

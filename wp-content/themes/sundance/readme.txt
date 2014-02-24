@@ -1,4 +1,4 @@
-= SUNDNACE =
+= SUNDANCE =
 
 * by Automattic, http://automattic.com
 
@@ -26,4 +26,29 @@ The Sundance theme is designed with responsive design in mind. It provides a tai
 The Sundance theme offers an optional sidebar with widgets. If you choose to add widgets to the sidebar in Widgets setting under Appearance, they will be displayed in a right-hand sidebar. If you prefer a single-column design, you may leave the sidebar empty as well as disable the social network links and then the main column will span the entire width of the layout.
 
 == CUSTOM APPEARANCE ==
+
 Customize Sundance theme even more with the custom background feature, a custom header image, a custom menu, and a full-width template.
+
+== GRAVATAR ==
+
+If your blog is a mulit-authors blog, the authors' Gravatars will be displayed on side of each post.
+
+== CHANGELOG ==
+
+= 1.1.2 Feb 7 2014 =
+* Update custom backgrounds to use add_theme_support
+* Validate that get_option('sticky_posts') is an array and is not empty before querying for sticky posts.
+
+= 1.1.1 Jan 2 2013 =
+* Fixed a jQuery dependency issue that caused the featured video section to not appear in certain environments
+
+= 1.1 Nov 5 2012 =
+* Better transient functionality for sundance_featured_posts()
+* Add styling for HTML5 email inputs
+* Make sure attribute escaping occurs after printing
+* PNG and JPG image compression
+* Remove loading of $locale.php
+* Fix Google Fonts to use is_ssl() correctly
+* Fix missing echo statements in attributes
+* Add Jetpack compatibility file
+* Update screenshot for HiDPI support

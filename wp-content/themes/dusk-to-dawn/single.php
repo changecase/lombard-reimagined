@@ -1,6 +1,6 @@
 <?php
 /**
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
 get_header(); ?>
 
@@ -13,7 +13,7 @@ get_header(); ?>
 
 		<?php dusktodawn_content_nav( 'nav-below' ); ?>
 
-		<?php comments_template( '', true ); ?>
+		<?php comments_template(); ?>
 
 	<?php endwhile; // end of the loop. ?>
 

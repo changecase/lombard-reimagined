@@ -17,32 +17,19 @@
 	$content_width = 644;
 
 	// Proceed only if sticky posts exist.
-	$sticky = get_option( 'sticky_posts' );
-	if ( ! empty( $sticky ) ) :
-
-		// Ready to record featured post IDs for later exclusion
-		global $featured_post_id;
-		$featured_post_id = array();
+	if ( sundance_featuring_posts() ) :
 
 		// The Featured Posts query - The need to be sticky post and video post format
 		$featured_args = array(
-			'post__in' => $sticky,
-			'post_status' => 'publish',
-			'tax_query' => array(
-				array(
-					'taxonomy' => 'post_format',
-					'field' => 'slug',
-					'terms' => array( 'post-format-video' )
-				),
-			),
-			'posts_per_page' => 10,
-			'no_found_rows' => true,
+			'post__in'            => sundance_featuring_posts(),
+			'posts_per_page'      => 10,
+			'no_found_rows'       => true,
+			'ignore_sticky_posts' => 1
 		);
 		$featured = new WP_Query( $featured_args );
 
 		// Proceed only if published posts exist
-		if ( $featured->have_posts() ) :
-?>
+		if ( $featured->have_posts() ) : ?>
 
 		<div class="featured-posts-super-wrapper loading">
 			<div class="featured-posts-wrapper">
@@ -50,10 +37,6 @@
 					<div class="featured-posts">
 						<ul class="slides">
 						<?php while ( $featured->have_posts() ) : $featured->the_post(); ?>
-							<?php
-								// Record our featured post IDs so we can exclude them from the regular loop later
-								$featured_post_id[] = $post->ID;
-							?>
 							<li class="featured">
 								<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 									<div class="featured-content">
@@ -61,7 +44,7 @@
 									</div>
 									<div class="featured-content-info">
 										<header class="entry-header">
-											<h1 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php printf( esc_attr__( 'Permalink to %s', 'sundance' ), the_title_attribute( 'echo=0' ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h1>
+											<h1 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'sundance' ), the_title_attribute( 'echo=0' ) ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h1>
 										</header><!-- .entry-header -->
 										<div class="featured-summary">
 											<?php the_excerpt(); ?>

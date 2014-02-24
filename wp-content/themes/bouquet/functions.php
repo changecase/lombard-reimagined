@@ -2,64 +2,31 @@
 /**
  * Bouquet functions and definitions
  *
- * @package WordPress
- * @subpackage Bouquet
+ * @package Bouquet
  */
 
 // Set the content width based on the theme's design and stylesheet.
 if ( ! isset( $content_width ) )
-	$content_width = 658; /* pixels */
+	$content_width = 1048; /* pixels */
 
-// WP.com: Check the current color scheme and set the correct themecolors array
-if ( ! isset( $themecolors ) ) {
-	$options = get_option( 'selecta_theme_options' );
-	$color_scheme = $options['color_scheme'];
-	switch ( $color_scheme ) {
-		case 'pink-dogwood':
-			$themecolors = array(
-				'bg' => '891e42',
-				'border' => 'e7d9b9',
-				'text' => '333333',
-				'link' => 'bb5974',
-				'url' => 'bb5974',
-			);
-			break;
-		case 'forget-me-not':
-			$themecolors = array(
-				'bg' => '2f5480',
-				'border' => '5175b3',
-				'text' => '333333',
-				'link' => '123b66',
-				'url' => '123b66',
-			);
-			break;
-		case 'tiger-lily':
-			$themecolors = array(
-				'bg' => '5a5224',
-				'border' => 'f9cdb5',
-				'text' => '333333',
-				'link' => 'ca4d11',
-				'url' => 'ca4d11',
-			);
-			break;
-	}
+function bouquet_content_width() {
+	global $content_width;
+
+	if ( is_active_sidebar( 'sidebar-1' ) )
+		$content_width = 714;
+
+	if ( is_page_template( 'full-width-page.php' ) )
+		$content_width = 1048;
 }
+add_action( 'init', 'bouquet_content_width' );
 
 if ( ! function_exists( 'bouquet_setup' ) ):
 
 // Sets up theme defaults and registers support for various WordPress features.
 function bouquet_setup() {
 
-	// This theme has an options page that lets users pick layout, color scheme, featured post title text and configure a twitter icon
-	//require_once( dirname( __FILE__ ) . '/inc/theme-options.php' );
-
 	// Make theme available for translation
 	load_theme_textdomain( 'bouquet', get_template_directory() . '/languages' );
-
-	$locale = get_locale();
-	$locale_file = get_template_directory() . "/languages/$locale.php";
-	if ( is_readable( $locale_file ) )
-		require_once( $locale_file );
 
 	 // Add default posts and comments RSS feed links to head
 	add_theme_support( 'automatic-feed-links' );
@@ -70,17 +37,46 @@ function bouquet_setup() {
 	) );
 
 	// This theme allows users to set a custom background.
-	add_custom_background();
+	$background_args = array(
+		'default-color' => '',
+		'default-image' => '',
+	);
+
+	$background_args = apply_filters( 'bouquet_custom_background_args', $background_args );
+
+	if ( function_exists( 'wp_get_theme' ) ) {
+		add_theme_support( 'custom-background', $background_args );
+	} else {
+		define( 'BACKGROUND_COLOR', $background_args['default-color'] );
+		define( 'BACKGROUND_IMAGE', $background_args['default-image'] );
+		add_custom_background();
+	}
 
 	// This theme allows users to upload a custom header.
-	define( 'HEADER_TEXTCOLOR', bouquet_header_text_color() );
-	define( 'HEADER_IMAGE', '' );
-	define( 'HEADER_IMAGE_WIDTH', 1100 ); // use width and height appropriate for your theme
-	define( 'HEADER_IMAGE_HEIGHT', 180 );
+	$header_args = array(
+		'default-image'      => '',
+		'default-text-color' => bouquet_header_text_color(),
+		'width'              => 1100,
+		'height'             => 180,
 
-	// Add a way for the custom header to be styled in the admin panel that controls
-	// custom headers. See bouquet_admin_header_style(), below.
-	add_custom_image_header( 'bouquet_header_style', 'bouquet_admin_header_style' );
+		// Add a way for the custom header to be styled in the admin panel that
+		// controls custom headers. See bouquet_admin_header_style(), below.
+		'wp-head-callback'    => 'bouquet_header_style',
+		'admin-head-callback' => 'bouquet_admin_header_style',
+	);
+
+	$header_args = apply_filters( 'bouquet_custom_header_args', $header_args );
+
+	if ( function_exists( 'wp_get_theme' ) ) {
+		add_theme_support( 'custom-header', $header_args );
+	} else {
+		// Compat: Versions of WordPress prior to 3.4.
+		define( 'HEADER_TEXTCOLOR',    $header_args['default-text-color'] );
+		define( 'HEADER_IMAGE',        $header_args['default-image'] );
+		define( 'HEADER_IMAGE_WIDTH',  $header_args['width'] ); // Use width and height appropriate for your theme.
+		define( 'HEADER_IMAGE_HEIGHT', $header_args['height'] );
+		add_custom_image_header( $header_args['wp-head-callback'], $header_args['admin-head-callback'] );
+	}
 
 	// Add support for Post Formats
 	add_theme_support( 'post-formats', array( 'aside', 'image', 'gallery' ) );
@@ -90,8 +86,18 @@ endif; // bouquet_setup
 // Tell WordPress to run bouquet_setup() when the 'after_setup_theme' hook is run.
 add_action( 'after_setup_theme', 'bouquet_setup' );
 
-// Load up the theme options
-require( dirname( __FILE__ ) . '/inc/theme-options.php' );
+/**
+ * Enqueue scripts and styles
+ */
+function bouquet_scripts() {
+	wp_enqueue_style( 'bouquet', get_stylesheet_uri() );
+
+	wp_enqueue_script( 'bouquet-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20120206', true );
+
+	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) )
+		wp_enqueue_script( 'comment-reply' );
+}
+add_action( 'wp_enqueue_scripts', 'bouquet_scripts' );
 
 // Get Bouquet options
 function bouquet_get_options() {
@@ -104,13 +110,11 @@ function bouquet_get_options() {
 
 // Register our color schemes and add them to the style queue
 function bouquet_color_registrar() {
-	$options = bouquet_get_options();
+	$options      = bouquet_get_options();
 	$color_scheme = $options['color_scheme'];
 
-	if ( ! empty( $color_scheme ) ) {
-		wp_register_style( $color_scheme, get_template_directory_uri() . '/colors/' . $color_scheme . '/' . $color_scheme . '.css', null, null );
-		wp_enqueue_style( $color_scheme );
-	}
+	if ( ! empty( $color_scheme ) )
+		wp_enqueue_style( $color_scheme, get_template_directory_uri() . '/colors/' . $color_scheme . '/' . $color_scheme . '.css', null, null );
 }
 add_action( 'wp_enqueue_scripts', 'bouquet_color_registrar' );
 
@@ -130,13 +134,7 @@ function bouquet_default_header_image() {
 
 // Set a default header text color
 function bouquet_header_text_color() {
-	$floral_scheme = bouquet_current_floral_scheme();
-
-	if ( 'forget-me-not' == $floral_scheme ) :
-		return '123b66';
-	else :
-		return '891e42';
-	endif;
+	return ( 'forget-me-not' == bouquet_current_floral_scheme() ) ? '123b66' : '891e42';
 }
 
 /**
@@ -263,13 +261,13 @@ add_filter( 'wp_page_menu_args', 'bouquet_page_menu_args' );
 // Register widgetized area and update sidebar with default widgets
 function bouquet_widgets_init() {
 	register_sidebar( array(
-		'name' => __( 'Sidebar 1', 'bouquet' ),
-		'id' => 'sidebar-1',
-		'description' => __( 'Drag widgets here to activate the sidebar.', 'bouquet' ),
+		'name'          => __( 'Sidebar 1', 'bouquet' ),
+		'id'            => 'sidebar-1',
+		'description'   => __( 'Drag widgets here to activate the sidebar.', 'bouquet' ),
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
-		'after_widget' => "</aside>",
-		'before_title' => '<h1 class="widget-title">',
-		'after_title' => '</h1>',
+		'after_widget'  => "</aside>",
+		'before_title'  => '<h1 class="widget-title">',
+		'after_title'   => '</h1>',
 	) );
 }
 add_action( 'init', 'bouquet_widgets_init' );
@@ -372,7 +370,7 @@ function bouquet_posted_on() {
 endif;
 
 function bouquet_post_meta() {
-	if ( is_singular() && 'post' == get_post_type() ) :
+	if ( is_singular() ) :
 		/* translators: used between list items, there is a space after the comma */
 		$category_list = get_the_category_list( __( ', ', 'bouquet' ) );
 
@@ -407,22 +405,34 @@ function bouquet_post_meta() {
 		);
 	else :
 		/* translators: used between list items, there is a space after the comma */
-		$categories_list = get_the_category_list( __( ', ', 'bouquet' ) );
-		$tags_list = get_the_tag_list( '', __( ', ', 'bouquet' ) );
+		$category_list = get_the_category_list( __( ', ', 'bouquet' ) );
 
-		if ( $categories_list && bouquet_categorized_blog() ) {
-			$meta_text = __( '<span class="cat-links">Posted on %1$s, in %2$s.</span>', 'bouquet' );
-		} // End if $categories_list
+		/* translators: used between list items, there is a space after the comma */
+		$tag_list = get_the_tag_list( '', ', ' );
 
-		if ( $tags_list ) {
-			$meta_text = __( '<span class="tag-links">Posted on %1$s, and tagged %3$s.</span>', 'bouquet' );
-		} // End if $tags_list
+		if ( ! bouquet_categorized_blog() ) {
+			// This blog only has 1 category so we just need to worry about tags in the meta text
+			if ( '' != $tag_list ) {
+				$meta_text = __( 'This entry was posted on %3$s and tagged %2$s.', 'bouquet' );
+			} else {
+				$meta_text = __( 'This entry was posted on %3$s.', 'bouquet' );
+			}
+
+		} else {
+			// But this blog has loads of categories so we should probably display them here
+			if ( '' != $tag_list ) {
+				$meta_text = __( 'This entry was posted on %3$s, in %1$s and tagged %2$s.', 'bouquet' );
+			} else {
+				$meta_text = __( 'This entry was posted on %3$s, in %1$s.', 'bouquet' );
+			}
+
+		} // end check for categories on this blog
 
 		printf(
 			$meta_text,
-			esc_attr( get_the_date() ),
-			$categories_list,
-			$tags_list
+			$category_list,
+			$tag_list,
+			esc_attr( get_the_date() )
 		);
 	endif;
 }
@@ -475,9 +485,11 @@ add_action( 'save_post', 'bouquet_category_transient_flusher' );
 
 // Filter in a link to a content ID attribute for the next/previous image links on image attachment pages
 function bouquet_enhanced_image_navigation( $url ) {
-	global $post;
+	global $wp_rewrite;
 
-	if ( wp_attachment_is_image( $post->ID ) )
+	$id = (int) get_the_ID();
+	$object = get_post( $id );
+	if ( wp_attachment_is_image( $id ) && ( $wp_rewrite->using_permalinks() && ( $object->post_parent > 0 ) && ( $object->post_parent != $id ) ) )
 		$url = $url . '#main';
 
 	return $url;
@@ -486,30 +498,22 @@ add_filter( 'attachment_link', 'bouquet_enhanced_image_navigation' );
 
 // Enqueue font styles
 function bouquet_fonts() {
-	wp_enqueue_style( 'sorts mill goudy', 'http://fonts.googleapis.com/css?family=Sorts+Mill+Goudy:400' );
+	$protocol = is_ssl() ? 'https' : 'http';
+	wp_enqueue_style( 'sorts-mill-goudy', "$protocol://fonts.googleapis.com/css?family=Sorts+Mill+Goudy:400" );
 }
 add_action( 'wp_enqueue_scripts', 'bouquet_fonts' );
 
-// Dequeue font styles.
-function bouquet_dequeue_fonts() {
-	/**
-	 * We don't want to enqueue the font scripts if the blog
-	 * has WP.com Custom Design and is using a 'Headings' font.
-	 */
-	if ( class_exists( 'TypekitData' ) ) {
-		if ( TypekitData::get( 'upgraded' ) ) {
-			$customfonts = TypekitData::get( 'families' );
-			if ( ! $customfonts )
-				return;
-			$headings = $customfonts['headings'];
+/**
+ * Enqueue font style for the custom header admin page.
+ */
+function bouquet_admin_fonts( $hook_suffix ) {
+	if ( 'appearance_page_custom-header' != $hook_suffix )
+		return;
 
-			if ( $headings['id'] ) {
-				wp_dequeue_style( 'sorts mill goudy' );
-			}
-		}
-	}
+	$protocol = is_ssl() ? 'https' : 'http';
+	wp_enqueue_style( 'sorts-mill-goudy', "$protocol://fonts.googleapis.com/css?family=Sorts+Mill+Goudy:400" );
 }
-add_action( 'wp_enqueue_scripts', 'bouquet_dequeue_fonts' );
+add_action( 'admin_enqueue_scripts', 'bouquet_admin_fonts' );
 
 function bouquet_header_css() {
 	// Hide the theme-provided background image if the user adds a custom background image or color
@@ -524,6 +528,44 @@ function bouquet_header_css() {
 	<?php endif;
 }
 add_action( 'wp_head', 'bouquet_header_css' );
+
+/**
+ * Filters wp_title to print a neat <title> tag based on what is being viewed.
+ *
+ * @since Bouquet 1.1
+ */
+function bouquet_wp_title( $title, $sep ) {
+	global $page, $paged;
+
+	if ( is_feed() )
+		return $title;
+
+	// Add the blog name
+	$title .= get_bloginfo( 'name' );
+
+	// Add the blog description for the home/front page.
+	$site_description = get_bloginfo( 'description', 'display' );
+	if ( $site_description && ( is_home() || is_front_page() ) )
+		$title .= " $sep $site_description";
+
+	// Add a page number if necessary:
+	if ( $paged >= 2 || $page >= 2 )
+		$title .= " $sep " . sprintf( __( 'Page %s', 'bouquet' ), max( $paged, $page ) );
+
+	return $title;
+}
+add_filter( 'wp_title', 'bouquet_wp_title', 10, 2 );
+
+/**
+ * This theme has an options page that lets users pick layout, color scheme,
+ * featured post title text and configure a twitter icon.
+ */
+require( get_template_directory() . '/inc/theme-options.php' );
+
+/**
+ * Load Jetpack compatibility file.
+ */
+require( get_template_directory() . '/inc/jetpack.compat.php' );
 
 /**
  * This theme was built with PHP, Semantic HTML, CSS, love, a Toolbox, and flowers.

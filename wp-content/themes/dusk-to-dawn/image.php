@@ -1,6 +1,6 @@
 <?php
 /**
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
 get_header(); ?>
 
@@ -40,7 +40,7 @@ get_header(); ?>
 							 */
 							$attachments = array_values( get_children( array( 'post_parent' => $post->post_parent, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => 'ASC', 'orderby' => 'menu_order ID' ) ) );
 							foreach ( $attachments as $k => $attachment ) {
-								if ( $attachment->ID == $post->ID )
+								if ( $attachment->ID == get_the_ID() )
 									break;
 							}
 							$k++;
@@ -58,13 +58,13 @@ get_header(); ?>
 							}
 						?>
 
-						<a href="<?php echo $next_attachment_url; ?>" title="<?php echo esc_attr( get_the_title() ); ?>" rel="attachment"><?php
+						<a href="<?php echo $next_attachment_url; ?>" title="<?php the_title_attribute(); ?>" rel="attachment"><?php
 						$attachment_size = apply_filters( 'dusktodawn_attachment_size', 726 );
-						echo wp_get_attachment_image( $post->ID, array( $attachment_size, $attachment_size ) ); // filterable image width with, essentially, no limit for image height.
+						echo wp_get_attachment_image( get_the_ID(), array( $attachment_size, $attachment_size ) ); // filterable image width with, essentially, no limit for image height.
 						?></a>
 					</div><!-- .attachment -->
 
-					<?php if ( ! empty( $post->post_excerpt ) ) : ?>
+					<?php if ( has_excerpt() ) : ?>
 					<div class="entry-caption">
 						<?php the_excerpt(); ?>
 					</div>
@@ -93,7 +93,7 @@ get_header(); ?>
 				<?php endif; ?>
 				<?php edit_post_link( __( 'Edit', 'dusktodawn' ), ' <span class="edit-link">', '</span>' ); ?>
 			</footer><!-- .entry-meta -->
-		</article><!-- #post-<?php the_ID(); ?> -->
+		</article><!-- #post-## -->
 
 		<?php comments_template(); ?>
 

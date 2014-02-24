@@ -1,38 +1,82 @@
 <?php
 /**
- * @package WordPress
- * @subpackage ChaosTheory
+ * @package ChaosTheory
  */
 
-$themecolors = array(
-	'bg' => '1B1B1B',
-	'border' => '0A0A0A',
-	'text' => 'DDDDDD',
-	'link' => '6DCFF6',
-	'url' => 'C1E5F3',
-);
+/**
+ * Set the content width based on the theme's design and stylesheet.
+ */
+if ( ! isset( $content_width ) )
+	$content_width = 510; /* pixels */
 
-$content_width = 510;
+if ( ! function_exists( 'chaostheory_setup' ) ) :
+/**
+ * Sets up theme defaults and registers support for various WordPress features.
+ *
+ * Note that this function is hooked into the after_setup_theme hook, which runs
+ * before the init hook. The init hook is too late for some features, such as indicating
+ * support post thumbnails.
+ */
+function chaostheory_setup() {
 
-add_theme_support( 'automatic-feed-links' );
+	/**
+	 * Make theme available for translation
+	 * Translations can be filed in the /languages/ directory
+	 * If you're building a theme based on chaostheory, use a find and replace
+	 * to change 'chaostheory' to the name of your theme in all the template files
+	 */
+	load_theme_textdomain( 'chaostheory', get_template_directory() . '/languages' );
 
-add_custom_background();
+	/**
+	 * Add default posts and comments RSS feed links to head
+	 */
+	add_theme_support( 'automatic-feed-links' );
 
-register_nav_menus( array(
-	'primary' => __( 'Primary Navigation', 'chaostheory' ),
-) );
+	/**
+	 * Enable support for Post Thumbnails on posts and pages
+	 *
+	 * @link http://codex.wordpress.org/Function_Reference/add_theme_support#Post_Thumbnails
+	 */
+	add_theme_support( 'post-thumbnails' );
+	set_post_thumbnail_size( get_custom_header()->width, get_custom_header()->height, true );
 
-// Make theme available for translation
-// Translations can be filed in the /languages/ directory
-load_theme_textdomain( 'chaostheory', get_template_directory() . '/languages' );
+	/**
+	 * This theme uses wp_nav_menu() in one location.
+	 */
+	register_nav_menus( array(
+		'primary' => __( 'Primary Navigation', 'chaostheory' ),
+	) );
+}
+endif; // chaostheory_setup
+add_action( 'after_setup_theme', 'chaostheory_setup' );
 
-$locale = get_locale();
-$locale_file = get_template_directory() . "/languages/$locale.php";
-if ( is_readable( $locale_file ) )
-	require_once( $locale_file );
+/**
+ * Setup the WordPress core custom background feature.
+ *
+ * Use add_theme_support to register support for WordPress 3.4+
+ * as well as provide backward compatibility for previous versions.
+ * Use feature detection of wp_get_theme() which was introduced
+ * in WordPress 3.4.
+ *
+ * Hooks into the after_setup_theme action.
+ */
+function chaostheory_custom_background() {
+	$args = array(
+		'default-color' => '',
+		'default-image' => '',
+	);
 
-// Widgets
-require_once( get_template_directory() . '/inc/widgets.php' );
+	$args = apply_filters( 'chaostheory_custom_background_args', $args );
+
+	if ( function_exists( 'wp_get_theme' ) ) {
+		add_theme_support( 'custom-background', $args );
+	} else {
+		define( 'BACKGROUND_COLOR', $args['default-color'] );
+		define( 'BACKGROUND_IMAGE', $args['default-image'] );
+		add_custom_background();
+	}
+}
+add_action( 'after_setup_theme', 'chaostheory_custom_background' );
 
 function chaostheory_widgets_init() {
 	register_sidebars( 2, array(
@@ -52,6 +96,17 @@ function chaostheory_widgets_init() {
 }
 add_action( 'widgets_init', 'chaostheory_widgets_init' );
 
+/**
+ * Enqueue scripts and styles
+ */
+function chaostheory_scripts() {
+	wp_enqueue_style( 'chaostheory', get_stylesheet_uri() );
+
+	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) )
+		wp_enqueue_script( 'comment-reply' );
+}
+add_action( 'wp_enqueue_scripts', 'chaostheory_scripts' );
+
 // Nav fallback
 function chaostheory_globalnav() {
 ?>
@@ -60,7 +115,8 @@ function chaostheory_globalnav() {
 		<?php wp_list_pages( 'title_li=&sort_column=menu_order&depth=1' ); ?>
 	</ul>
 </div>
-<?php }
+<?php
+}
 
 function chaostheory_comment($comment, $args, $depth) {
 	$GLOBALS['comment'] = $comment;
@@ -70,7 +126,7 @@ function chaostheory_comment($comment, $args, $depth) {
 	<div id="div-comment-<?php comment_ID(); ?>">
 	<ul class="comment-meta">
 		<li class="comment-author vcard">
-		<div class="comment-avatar"><?php if ($args['avatar_size'] != 0) echo get_avatar( $comment, $args['avatar_size'] ); ?></div>
+		<div class="comment-avatar"><?php if ( $args['avatar_size'] != 0 ) echo get_avatar( $comment, $args['avatar_size'] ); ?></div>
 		<span class="fn"><?php comment_author_link(); ?></span></li>
 		<?php printf( __( '<li>Posted %1$s at %2$s</li> <li><a href="%3$s" title="Permalink to this comment">Permalink</a></li>', 'chaostheory' ),
 			get_comment_date(),
@@ -79,7 +135,7 @@ function chaostheory_comment($comment, $args, $depth) {
 			?> <li><?php edit_comment_link( __( '(Edit)', 'chaostheory' ), ' ', '' ); ?> <?php comment_reply_link(array_merge( $args, array( 'add_below' => 'div-comment', 'depth' => $depth, 'max_depth' => $args['max_depth'])) ); ?></li>
 	</ul>
 	<div class="comment-content">
-		<?php if ($comment->comment_approved == '0' ) : ?><span class="unapproved"><?php _e( 'Your comment is awaiting moderation.', 'chaostheory' ); ?></span><?php endif; ?>
+		<?php if ( $comment->comment_approved == '0' ) : ?><span class="unapproved"><?php _e( 'Your comment is awaiting moderation.', 'chaostheory' ); ?></span><?php endif; ?>
 		<?php comment_text(); ?>
 	</div>
 	</div>
@@ -101,7 +157,7 @@ function chaostheory_ping($comment, $args, $depth) {
 		<?php edit_comment_link( __( '(Edit)', 'chaostheory' ), ' ', '' ); ?>
 	</div>
 	<div class="trackback-content">
-	<div class="comment-mod"><?php if ($comment->comment_approved == '0' ) _e( '<em>Your trackback/pingback is awaiting moderation.</em>', 'chaostheory' ); ?></div>
+	<div class="comment-mod"><?php if ( $comment->comment_approved == '0' ) _e( '<em>Your trackback/pingback is awaiting moderation.</em>', 'chaostheory' ); ?></div>
 	<?php comment_text(); ?>
 	</div>
 	</div>
@@ -109,115 +165,44 @@ function chaostheory_ping($comment, $args, $depth) {
 }
 
 /**
- * Let's start the changeable header business here
+ * Filters wp_title to print a neat <title> tag based on what is being viewed.
+ *
+ * @since ChaosTheory 1.0
  */
+function chaostheory_wp_title( $title, $sep ) {
+	global $page, $paged;
 
-// The default header text color
-define( 'HEADER_TEXTCOLOR', 'FFFFFF' );
+	if ( is_feed() )
+		return $title;
 
-// By leaving empty, we allow for random image rotation.
-define( 'HEADER_IMAGE', '' );
+	// Add the blog name
+	$title .= get_bloginfo( 'name' );
 
-// The height and width of our custom header.
-define( 'HEADER_IMAGE_WIDTH', 780 );
-define( 'HEADER_IMAGE_HEIGHT', 180 );
+	// Add the blog description for the home/front page.
+	$site_description = get_bloginfo( 'description', 'display' );
+	if ( $site_description && ( is_home() || is_front_page() ) )
+		$title .= " $sep $site_description";
 
-add_theme_support( 'post-thumbnails' );
+	// Add a page number if necessary:
+	if ( $paged >= 2 || $page >= 2 )
+		$title .= " $sep " . sprintf( __( 'Page %s', 'chaostheory' ), max( $paged, $page ) );
 
-set_post_thumbnail_size( HEADER_IMAGE_WIDTH, HEADER_IMAGE_HEIGHT, true );
+	return $title;
+}
+add_filter( 'wp_title', 'chaostheory_wp_title', 10, 2 );
 
-// Turn on random header image rotation by default.
-add_theme_support( 'custom-header', array( 'random-default' => true ) );
+/**
+ * Load custom widgets.
+ */
+require_once( get_template_directory() . '/inc/widgets.php' );
 
-// Add a way for the custom header to be styled in the admin panel that controls custom headers.
-add_custom_image_header( 'chaostheory_header_style', 'chaostheory_admin_header_style', 'chaostheory_admin_header_image' );
+/**
+ * Implement the Custom Header feature.
+ */
+require( get_template_directory() . '/inc/custom-header.php' );
 
-// Custom styles for our blog header
-function chaostheory_header_style() {
-	// If no custom options for text are set, let's bail
-	if ( HEADER_TEXTCOLOR == get_header_textcolor() )
-		return;
-	// If we get this far, we have custom styles. Let's do this.
-	?>
-	<style type="text/css">
-	<?php
-		// Has the text been hidden? Let's hide it then.
-		if ( 'blank' == get_header_textcolor() ) :
-	?>
-		#header h1,
-		#header h1 a,
-		#blog-description {
-			position: absolute !important;
-			clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
-			clip: rect(1px, 1px, 1px, 1px);
-		}
-	<?php
-		// If the user has set a custom color for the text use that
-		else :
-	?>
-		#blog-title,
-		#blog-title a,
-		#blog-description {
-			color: #<?php echo get_header_textcolor(); ?> !important;
-		}
-	<?php endif; ?>
-	</style>
-	<?php
-} // chaostheory_header_style()
+/**
+ * Load Jetpack compatibility file.
+ */
+require( get_template_directory() . '/inc/jetpack.compat.php' );
 
-// Custom styles for the custom header page in the admin
-function chaostheory_admin_header_style() {
-?>
-	<style type="text/css">
-	#headimg {
-		max-width: 780px;
-		background: #000;
-		padding: 15px 10px 0;
-	}
-	.appearance_page_custom-header #headimg {
-		border: none;
-	}
-	#headimg h1 {
-		font-size: 24px;
-		font-weight: normal;
-		line-height: 1em;
-		margin: 0;
-	}
-	#headimg h1 a {
-		text-decoration: none;
-	}
-	#headimg #desc {
-		font-size: 10px;
-		margin-bottom: 20px;
-		line-height: 1em;
-	}
-	<?php
-		// If the user has set a custom color for the text use that
-		if ( get_header_textcolor() != HEADER_TEXTCOLOR ) :
-	?>
-		#headimg h1 a,
-		#headimg #desc {
-			color: #<?php echo get_header_textcolor(); ?>;
-		}
-	<?php endif; ?>
-	</style>
-<?php
-} // chaostheory_admin_header_style
-
-// Custom markup for the custom header admin page
-function chaostheory_admin_header_image() { ?>
-	<div id="headimg">
-		<?php
-		if ( 'blank' == get_theme_mod( 'header_textcolor', HEADER_TEXTCOLOR ) || '' == get_theme_mod( 'header_textcolor', HEADER_TEXTCOLOR ) )
-			$style = ' style="display:none;"';
-		else
-			$style = ' style="color:#' . get_theme_mod( 'header_textcolor', HEADER_TEXTCOLOR ) . ';"';
-		?>
-		<h1><a id="name"<?php echo $style; ?> onclick="return false;" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a></h1>
-		<div id="desc"<?php echo $style; ?>><?php bloginfo( 'description' ); ?></div>
-		<?php $header_image = get_header_image();
-		if ( ! empty( $header_image ) ) : ?>
-			<img src="<?php echo esc_url( $header_image ); ?>" alt="" />
-		<?php endif; ?>
-	</div>
-<?php } // chaostheory_admin_header_image

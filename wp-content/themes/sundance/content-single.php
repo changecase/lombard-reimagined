@@ -8,7 +8,7 @@
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 
 	<header class="entry-header">
-		<a href="<?php echo get_author_posts_url( get_the_author_meta( 'ID' ) ); ?>" title="<?php printf( esc_attr( sprintf( __( 'View all posts by %s', 'sundance' ), get_the_author_meta( 'display_name' ) ) ) ); ?>">
+		<a href="<?php echo get_author_posts_url( get_the_author_meta( 'ID' ) ); ?>" title="<?php echo esc_attr( sprintf( __( 'View all posts by %s', 'sundance' ), get_the_author() ) ); ?>">
 			<?php echo get_avatar( get_the_author_meta( 'user_email' ), 45 ); ?>
 		</a>
 

@@ -2,14 +2,13 @@
 /**
  * The template for displaying posts in the Gallery Post Format on index and archive pages
  *
- * @package WordPress
- * @subpackage Bouquet
+ * @package Bouquet
  */
 ?>
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
-		<h1 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php printf( esc_attr__( 'Permalink to %s', 'bouquet' ), the_title_attribute( 'echo=0' ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h1>
+		<h1 class="entry-title"><a href="<?php the_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h1>
 
 		<?php bouquet_posted_on(); ?>
 
@@ -26,20 +25,37 @@
 
 			<?php else : ?>
 				<?php
-						$images = get_children( array( 'post_parent' => $post->ID, 'post_type' => 'attachment', 'post_mime_type' => 'image', 'orderby' => 'rand', 'order' => 'ASC', 'numberposts' => 999 ) );
-						if ( $images ) :
-							$total_images = count( $images );
-							$large_image = array_shift( $images );
-							$image_img_tag = wp_get_attachment_image( $large_image->ID, 'large' );
-						?>
+					$pattern = get_shortcode_regex();
+					preg_match( "/$pattern/s", get_the_content(), $match );
+					$atts = shortcode_parse_atts( $match[3] );
+					$images = isset( $atts['ids'] ) ? explode( ',', $atts['ids'] ) : false;
+
+					if ( ! $images ) :
+						$images = get_posts( array(
+							'post_parent'      => get_the_ID(),
+							'fields'           => 'ids',
+							'post_type'        => 'attachment',
+							'post_mime_type'   => 'image',
+							'orderby'          => 'menu_order',
+							'order'            => 'ASC',
+							'numberposts'      => 999,
+							'suppress_filters' => false
+						) );
+					endif;
+
+					if ( $images ) :
+						$total_images  = count( $images );
+						$image         = array_shift( $images );
+						$image_img_tag = wp_get_attachment_image( $image, 'large' );
+				?>
 						<div class="img-gallery">
 							<div class="gallery-large">
 								<a href="<?php the_permalink(); ?>"><?php echo $image_img_tag; ?></a>
 							</div><!-- .gallery-large -->
 						</div><!-- .img-gallery -->
 
-						<p class="gallery-info"><em><?php printf( _n( 'This gallery contains <a %1$s>%2$s photo</a>.', 'This gallery contains <a %1$s>%2$s photos</a>.', $total_images, 'minileven' ),
-								'href="' . esc_url( get_permalink() ) . '" title="' . sprintf( esc_attr__( 'Permalink to %s', 'minileven' ), the_title_attribute( 'echo=0' ) ) . '" rel="bookmark"',
+						<p class="gallery-info"><em><?php printf( _n( 'This gallery contains <a %1$s>%2$s photo</a>.', 'This gallery contains <a %1$s>%2$s photos</a>.', $total_images, 'bouquet' ),
+								'href="' . esc_url( get_permalink() ) . '" title="' . esc_attr( sprintf( __( 'Permalink to %s', 'bouquet' ), the_title_attribute( 'echo=0' ) ) ) . '" rel="bookmark"',
 								number_format_i18n( $total_images ) );
 						?></em></p>
 
@@ -56,4 +72,4 @@
 		<?php endif; ?>
 		<?php edit_post_link( __( '(Edit)', 'bouquet' ), '<span class="edit-link">', '</span>' ); ?>
 	</footer><!-- #entry-meta -->
-</article><!-- #post-<?php the_ID(); ?> -->
+</article><!-- #post-## -->

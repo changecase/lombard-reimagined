@@ -1,21 +1,19 @@
 <?php
 /**
- * @package Dusk To Dawn
+ * @package Dusk_To_Dawn
  */
 ?><!DOCTYPE html>
 <!--[if IE 8]>
 <html id="ie8" <?php language_attributes(); ?>>
 <![endif]-->
-<!--[if !(IE 8) ]><!-->
+<!--[if !(IE 8)]><!-->
 <html <?php language_attributes(); ?>>
 <!--<![endif]-->
 <head>
 <meta charset="<?php bloginfo( 'charset' ); ?>" />
-<title><?php wp_title(); ?> <?php bloginfo( 'name' ); ?></title>
+<title><?php wp_title( '|', true, 'right' ); ?></title>
 <link rel="profile" href="http://gmpg.org/xfn/11" />
-<link rel="stylesheet" type="text/css" media="all" href="<?php bloginfo( 'stylesheet_url' ); ?>" />
 <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
-<?php if ( is_singular() && get_option( 'thread_comments' ) ) wp_enqueue_script( 'comment-reply' ); ?>
 <!--[if lt IE 9]>
 <script src="<?php echo get_template_directory_uri(); ?>/js/html5.js" type="text/javascript"></script>
 <![endif]-->
@@ -26,6 +24,7 @@
 <div id="super-super-wrapper">
 	<div id="super-wrapper">
 		<div id="wrapper">
+		<?php do_action( 'before' ); ?>
 			<div id="page" class="hfeed">
 				<header id="branding" role="banner">
 					<hgroup>
@@ -41,7 +40,7 @@
 					?>
 					<div id="header-image">
 						<a href="<?php echo home_url( '/' ); ?>">
-							<img src="<?php header_image(); ?>" width="<?php echo HEADER_IMAGE_WIDTH; ?>" height="<?php echo HEADER_IMAGE_HEIGHT; ?>" alt="" />
+							<img src="<?php header_image(); ?>" width="<?php echo get_custom_header()->width; ?>" height="<?php echo get_custom_header()->height; ?>" alt="" />
 						</a>
 					</div>
 					<?php endif; ?>

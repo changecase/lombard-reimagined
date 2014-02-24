@@ -8,19 +8,14 @@
  */
 
 function sundance_custom_header_setup() {
-	// The default header text color
-	define( 'HEADER_TEXTCOLOR', '464646' );
-
-	// By leaving empty, we allow for random image rotation.
-	define( 'HEADER_IMAGE', '' );
-
-	// The height and width of your custom header.
-	// Add a filter to sundance_header_image_width and sundance_header_image_height to change these values.
-	define( 'HEADER_IMAGE_WIDTH', apply_filters( 'sundance_header_image_width', 984 ) );
-	define( 'HEADER_IMAGE_HEIGHT', apply_filters( 'sundance_header_image_height', 242 ) );
-
-	// Add a way for the custom header to be styled in the admin panel that controls custom headers
-	add_custom_image_header( 'sundance_header_style', 'sundance_admin_header_style', 'sundance_admin_header_image' );
+	add_theme_support( 'custom-header', apply_filters( 'sundance_custom_header_args', array(
+		'default-text-color'     => '464646',
+		'width'                  => apply_filters( 'sundance_header_image_width', 984 ),
+		'height'                 => apply_filters( 'sundance_header_image_height', 242 ),
+		'wp-head-callback'       => 'sundance_header_style',
+		'admin-head-callback'    => 'sundance_admin_header_style',
+		'admin-preview-callback' => 'sundance_admin_header_image',
+	) ) );
 }
 add_action( 'after_setup_theme', 'sundance_custom_header_setup' );
 
@@ -73,47 +68,45 @@ if ( ! function_exists( 'sundance_admin_header_style' ) ) :
 /**
  * Styles the header image displayed on the Appearance > Header admin panel.
  *
- * Referenced via add_custom_image_header() in sundance_setup().
- *
  * @since Sundance 1.0
  */
 function sundance_admin_header_style() {
 ?>
 	<style type="text/css">
-	.appearance_page_custom-header #headimg {
-		border: none;
-		max-width: 984px;
-	}
-	#headimg h1,
-	#desc {
-		font-family: Georgia, serif;
-	}
-	#headimg h1 {
-		float: left;
-		font-size: 44px;
-		font-weight: normal;
-		line-height: 52px;
-		margin: 0 0 0 110px;
-		max-width: 652px;
-	}
-	#headimg h1 a {
-		text-decoration: none;
-	}
-	#desc {
-		float: right;
-		font-size: 12px;
-		font-style: italic;
-		line-height: 22px;
-		margin: 26px 0 0 0;
-		max-width: 186px;
-	}
-	#headimg img {
-		clear: both;
-		height: auto;
-		margin: 33px 0 0 0;
-		max-width: 984px;
-		width: 100%;
-	}
+		.appearance_page_custom-header #headimg {
+			border: none;
+			max-width: 984px;
+		}
+		#headimg h1,
+		#desc {
+			font-family: 'Droid Serif', serif;
+		}
+		#headimg h1 {
+			float: left;
+			font-size: 44px;
+			font-weight: normal;
+			line-height: 52px;
+			margin: 0 0 0 110px;
+			max-width: 652px;
+		}
+		#headimg h1 a {
+			text-decoration: none;
+		}
+		#desc {
+			float: right;
+			font-size: 12px;
+			font-style: italic;
+			line-height: 22px;
+			margin: 26px 0 0 0;
+			max-width: 186px;
+		}
+		#headimg img {
+			clear: both;
+			height: auto;
+			margin: 33px 0 0 0;
+			max-width: 984px;
+			width: 100%;
+		}
 	</style>
 <?php
 }
@@ -123,24 +116,19 @@ if ( ! function_exists( 'sundance_admin_header_image' ) ) :
 /**
  * Custom header image markup displayed on the Appearance > Header admin panel.
  *
- * Referenced via add_custom_image_header() in sundance_setup().
- *
  * @since sundance 1.0
  */
-function sundance_admin_header_image() { ?>
+function sundance_admin_header_image() {
+	$style        = sprintf( ' style="color:#%s;"', get_header_textcolor() );
+	$header_image = get_header_image();
+?>
 	<div id="headimg">
-		<?php
-		if ( 'blank' == get_theme_mod( 'header_textcolor', HEADER_TEXTCOLOR ) || '' == get_theme_mod( 'header_textcolor', HEADER_TEXTCOLOR ) )
-			$style = ' style="display:none;"';
-		else
-			$style = ' style="color:#' . get_theme_mod( 'header_textcolor', HEADER_TEXTCOLOR ) . ';"';
-		?>
-		<h1><a id="name"<?php echo $style; ?> onclick="return false;" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a></h1>
-		<div id="desc"<?php echo $style; ?>><?php bloginfo( 'description' ); ?></div>
-		<?php $header_image = get_header_image();
-		if ( ! empty( $header_image ) ) : ?>
-			<img src="<?php echo esc_url( $header_image ); ?>" alt="" />
+		<h1 class="displaying-header-text"><a id="name"<?php echo $style; ?> onclick="return false;" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a></h1>
+		<div class="displaying-header-text" id="desc"<?php echo $style; ?>><?php bloginfo( 'description' ); ?></div>
+		<?php if ( ! empty( $header_image ) ) : ?>
+		<img src="<?php echo esc_url( $header_image ); ?>" alt="" />
 		<?php endif; ?>
 	</div>
-<?php }
+<?php
+}
 endif; // sundance_admin_header_image

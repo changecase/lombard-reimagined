@@ -1,7 +1,6 @@
 <?php
 /**
- * @package WordPress
- * @subpackage Coraline
+ * @package Coraline
  * @since Coraline 1.0
  */
 ?>
@@ -27,14 +26,25 @@
 
 <?php
 	// Start the Loop.
-	$options = coraline_get_theme_options(); while ( have_posts() ) : the_post(); ?>
+	$options = coraline_get_theme_options();
+
+	while ( have_posts() ) :
+		the_post();
+
+		$format = get_post_format();
+
+		if ( false == $format)
+			$format = 'standard'; ?>
 
 <?php /* How to display posts in the Gallery category. */ ?>
 
-	<?php if ( ( isset( $options['gallery_category'] ) && '0' != $options['gallery_category'] && in_category( $options['gallery_category'] ) ) || 'gallery' == get_post_format( $post->ID ) ) : ?>
+	<?php if ( ( isset( $options['gallery_category'] ) && '0' != $options['gallery_category'] && in_category( $options['gallery_category'] ) ) || has_post_format( 'gallery' ) ) : ?>
 
 		<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-			<h2 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php printf( esc_attr__( 'Permalink to %s', 'coraline' ), the_title_attribute( 'echo=0' ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
+
+			<a class="entry-format" href="<?php echo esc_url( get_post_format_link( 'gallery' ) ); ?>" title="<?php echo esc_attr( sprintf( __( 'All %s posts', 'bueno' ), get_post_format_string( 'gallery' ) ) ); ?>"><?php echo esc_html( get_post_format_string( 'gallery' ) ); ?></a>
+
+			<h2 class="entry-title"><a href="<?php the_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
 
 			<div class="entry-meta">
 				<?php coraline_posted_on(); coraline_posted_by(); ?>
@@ -45,17 +55,33 @@
 				<?php the_content(); ?>
 			<?php else : ?>
 				<?php
-					$images = get_children( array( 'post_parent' => $post->ID, 'post_type' => 'attachment', 'post_mime_type' => 'image', 'orderby' => 'menu_order', 'order' => 'ASC', 'numberposts' => 999 ) );
+					$pattern = get_shortcode_regex();
+					preg_match( "/$pattern/s", get_the_content(), $match );
+					$atts    = isset( $match[3] ) ? shortcode_parse_atts( $match[3] ) : array();
+					$images  = isset( $atts['ids'] ) ? explode( ',', $atts['ids'] ) : false;
+
+					if ( ! $images ) :
+						$images = get_posts( array(
+							'post_parent'      => get_the_ID(),
+							'fields'           => 'ids',
+							'post_type'        => 'attachment',
+							'post_mime_type'   => 'image',
+							'orderby'          => 'menu_order',
+							'order'            => 'ASC',
+							'numberposts'      => 999,
+							'suppress_filters' => false
+						) );
+					endif;
+
 					if ( $images ) :
-						$total_images = count( $images );
-						$image = array_shift( $images );
-						$image_img_tag = wp_get_attachment_image( $image->ID, 'thumbnail' );
+						$total_images  = count( $images );
+						$image         = array_shift( $images );
 				?>
 						<div class="gallery-thumb">
-							<a class="size-thumbnail" href="<?php the_permalink(); ?>"><?php echo $image_img_tag; ?></a>
+							<a class="size-thumbnail" href="<?php the_permalink(); ?>"><?php echo wp_get_attachment_image( $image, 'thumbnail' ); ?></a>
 						</div><!-- .gallery-thumb -->
 						<p><em><?php printf( __( 'This gallery contains <a %1$s>%2$s photos</a>.', 'coraline' ),
-								'href="' . get_permalink() . '" title="' . sprintf( esc_attr__( 'Permalink to %s', 'coraline' ), the_title_attribute( 'echo=0' ) ) . '" rel="bookmark"',
+								'href="' . esc_url( get_permalink() ) . '" title="' . esc_attr( sprintf( __( 'Permalink to %s', 'coraline' ), the_title_attribute( 'echo=0' ) ) ) . '" rel="bookmark"',
 								$total_images
 							); ?></em></p>
 				<?php endif; ?>
@@ -67,11 +93,12 @@
 				<span class="comments-link"><?php comments_popup_link( __( '&rarr; Leave a comment', 'coraline' ), __( '&rarr; 1 Comment', 'coraline' ), __( '&rarr; % Comments', 'coraline' ) ); ?></span>
 
 			<?php
-				if ( isset( $options['gallery_category'] ) ) :
+				if ( isset( $options['gallery_category'] ) && ! empty( $options['gallery_category'] ) ) :
 					$cat_slug = sanitize_title( $options['gallery_category'] );
-					if ( in_category( $cat_slug ) ) :
+					$gallery  = get_term_by( 'slug', $cat_slug, 'category' );
+					if ( is_object( $gallery ) && in_category( $gallery->term_id ) ) :
 			?>
-				<p><a href="<?php echo get_term_link( $cat_slug, 'category' ); ?>" title="<?php esc_attr_e( 'View posts in the Gallery category', 'coraline' ); ?>"><?php _e( 'More Galleries', 'coraline' ); ?></a></p>
+				<p><a href="<?php echo get_category_link( $gallery ); ?>" title="<?php esc_attr_e( 'View posts in the Gallery category', 'coraline' ); ?>"><?php _e( 'More Galleries', 'coraline' ); ?></a></p>
 			<?php endif; endif; ?>
 
 				<p><?php edit_post_link( __( 'Edit', 'coraline' ), '', '' ); ?></p>
@@ -80,8 +107,10 @@
 
 <?php /* How to display posts in the asides category */ ?>
 
-	<?php elseif ( isset( $options['aside_category'] ) && '0' != $options['aside_category'] && in_category( $options['aside_category'] ) || 'aside' == get_post_format( $post->ID ) ) : ?>
+	<?php elseif ( isset( $options['aside_category'] ) && '0' != $options['aside_category'] && in_category( $options['aside_category'] ) || has_post_format( 'aside' ) ) : ?>
 		<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+
+		<a class="entry-format" href="<?php echo esc_url( get_post_format_link( 'aside' ) ); ?>" title="<?php echo esc_attr( sprintf( __( 'All %s posts', 'coraline' ), get_post_format_string( 'aside' ) ) ); ?>"><?php echo esc_html( get_post_format_string( 'aside' ) ); ?></a>
 
 		<?php if ( is_archive() || is_search() ) : // Display excerpts for archives and search. ?>
 			<div class="entry-summary aside">
@@ -100,11 +129,50 @@
 			</div><!-- .entry-info -->
 		</div><!-- #post-## -->
 
+<?php /* How to display formatted posts */ ?>
+
+	<?php elseif ( 'standard' != $format ) : ?>
+
+		<a class="entry-format" href="<?php echo esc_url( get_post_format_link( get_post_format() ) ); ?>" title="<?php echo esc_attr( sprintf( __( 'All %s posts', 'coraline' ), get_post_format_string( get_post_format() ) ) ); ?>"><?php echo esc_html( get_post_format_string( get_post_format() ) ); ?></a>
+
+		<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+			<?php the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' ); ?>
+
+	<?php if ( is_search() ) : // Display excerpts for search. ?>
+			<div class="entry-summary">
+				<?php the_excerpt(); ?>
+			</div><!-- .entry-summary -->
+	<?php else : ?>
+			<div class="entry-content">
+				<?php the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'coraline' ) ); ?>
+				<?php wp_link_pages( array( 'before' => '<div class="page-link">' . __( 'Pages:', 'coraline' ), 'after' => '</div>' ) ); ?>
+			</div><!-- .entry-content -->
+	<?php endif; ?>
+
+			<div class="entry-info">
+					<p class="comments-link"><?php comments_popup_link( __( '&rarr; Leave a comment', 'coraline' ), __( '&rarr; 1 Comment', 'coraline' ), __( '&rarr; % Comments', 'coraline' ) ); ?></p>
+				<?php if ( count( get_the_category() ) ) : ?>
+					<p class="cat-links">
+						<?php coraline_posted_on(); coraline_posted_by(); ?> <?php printf( __( '<span class="%1$s">in</span> %2$s', 'coraline' ), 'entry-info-prep entry-info-prep-cat-links', get_the_category_list( ', ' ) ); ?>
+					</p>
+				<?php endif; ?>
+				<?php
+					$tags_list = get_the_tag_list( '', ', ' );
+					if ( $tags_list ):
+				?>
+					<p class="tag-links">
+						<?php printf( __( '<span class="%1$s">Tagged</span> %2$s', 'coraline' ), 'entry-info-prep entry-info-prep-tag-links', $tags_list ); ?>
+					</p>
+				<?php endif; ?>
+				<?php edit_post_link( __( 'Edit', 'coraline' ), '<p class="edit-link">', '</p>' ); ?>
+			</div><!-- .entry-info -->
+		</div><!-- #post-## -->
+
 <?php /* How to display all other posts. */ ?>
 
 	<?php else : ?>
 		<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-			<h2 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php printf( esc_attr__( 'Permalink to %s', 'coraline' ), the_title_attribute( 'echo=0' ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
+			<h2 class="entry-title"><a href="<?php the_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
 
 			<div class="entry-meta">
 				<?php coraline_posted_on(); coraline_posted_by(); ?><span class="comments-link"><span class="meta-sep">|</span> <?php comments_popup_link( __( 'Leave a comment', 'coraline' ), __( '1 Comment', 'coraline' ), __( '% Comments', 'coraline' ) ); ?></span>
@@ -142,7 +210,7 @@
 
 		<?php comments_template( '', true ); ?>
 
-	<?php endif; // This was the if statement that broke the loop into three parts based on categories. ?>
+	<?php endif; // This was the if statement that broke the loop into four parts based on categories. ?>
 
 <?php endwhile; // End the loop. Whew. ?>
 

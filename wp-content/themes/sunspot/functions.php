@@ -34,6 +34,11 @@ if ( ! isset( $content_width ) ) :
 	endif;
 endif;
 
+/**
+ * Load Jetpack compatibility file.
+ */
+require( get_template_directory() . '/inc/jetpack.compat.php' );
+
 if ( ! function_exists( 'sunspot_setup' ) ):
 /**
  * Sets up theme defaults and registers support for various WordPress features.
@@ -62,17 +67,17 @@ function sunspot_setup() {
 	require( get_template_directory() . '/inc/theme-options/theme-options.php' );
 
 	/**
+	 * WordPress.com-specific functions and definitions
+	 */
+	require( get_template_directory() . '/inc/wpcom.php' );
+
+	/**
 	 * Make theme available for translation
 	 * Translations can be filed in the /languages/ directory
 	 * If you're building a theme based on _s, use a find and replace
 	 * to change 'sunspot' to the name of your theme in all the template files
 	 */
 	load_theme_textdomain( 'sunspot', get_template_directory() . '/languages' );
-
-	$locale = get_locale();
-	$locale_file = get_template_directory() . "/languages/$locale.php";
-	if ( is_readable( $locale_file ) )
-		require_once( $locale_file );
 
 	/**
 	 * Add default posts and comments RSS feed links to head
@@ -98,6 +103,8 @@ function sunspot_setup() {
 	// "sunspot-thumbnail-wide" is used when sidebar-1 does not contain widgets.
 	add_image_size( 'sunspot-thumbnail', 260, 160, true );
 	add_image_size( 'sunspot-thumbnail-wide', 387, 160, true );
+
+	add_theme_support( 'print-style' );
 }
 endif; // sunspot_setup
 add_action( 'after_setup_theme', 'sunspot_setup' );
@@ -158,3 +165,42 @@ add_action( 'wp_enqueue_scripts', 'sunspot_scripts' );
  * Implement the Custom Header feature
  */
 require( get_template_directory() . '/inc/custom-header.php' );
+
+/**
+ * Register Google Fonts style.
+ *
+ * @since Sunspot 1.0
+ */
+function sunspot_register_fonts() {
+	$protocol = is_ssl() ? 'https' : 'http';
+	wp_register_style(
+		'ubuntu',
+		"$protocol://fonts.googleapis.com/css?family=Ubuntu:400,300",
+		array(),
+		'20120821'
+	);
+}
+add_action( 'init', 'sunspot_register_fonts' );
+
+/**
+ * Enqueue Sunspot Fonts
+ *
+ * @since Sunspot 1.0
+ */
+function sunspot_fonts() {
+	wp_enqueue_style( 'ubuntu' );
+}
+add_action( 'wp_enqueue_scripts', 'sunspot_fonts' );
+
+/**
+ * Enqueue Google fonts style to admin screen for custom header display.
+ *
+ * @since Sunspot 1.0
+ */
+function sunspot_admin_fonts( $hook_suffix ) {
+	if ( 'appearance_page_custom-header' != $hook_suffix )
+		return;
+
+	wp_enqueue_style( 'ubuntu' );
+}
+add_action( 'admin_enqueue_scripts', 'sunspot_admin_fonts' );

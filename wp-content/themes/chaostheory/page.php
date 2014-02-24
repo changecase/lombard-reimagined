@@ -1,7 +1,6 @@
 <?php
 /**
- * @package WordPress
- * @subpackage ChaosTheory
+ * @package ChaosTheory
  */
 ?>
 <?php get_header(); ?>
@@ -13,7 +12,7 @@
 
 				<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 					<div class="entry-meta">
-						<h2 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php echo esc_attr( sprintf( __( 'Permanent link to %s', 'chaostheory' ), the_title_attribute( 'echo=0' ) ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
+						<h2 class="entry-title"><a href="<?php the_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
 					</div>
 					<div class="entry-content">
 					<?php the_content(); ?>
@@ -22,7 +21,7 @@
 					</div>
 				</div><!-- .post -->
 
-				<?php comments_template(); ?>
+				<?php comments_template( '', true ); ?>
 
 			<?php endwhile; // end of the loop. ?>
 

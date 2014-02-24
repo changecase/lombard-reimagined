@@ -2,9 +2,8 @@
 /**
  * @package Parament
  */
-?>
 
-<?php get_header(); ?>
+get_header(); ?>
 
 <div id="container" class="contain">
 

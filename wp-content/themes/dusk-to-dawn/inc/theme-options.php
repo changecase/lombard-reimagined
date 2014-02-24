@@ -2,8 +2,7 @@
 /**
  * Dusk To Dawn Theme Options
  *
- * @package WordPress
- * @subpackage Dusk To Dawn
+ * @package Dusk To Dawn
  */
 
 /**
@@ -78,6 +77,11 @@ function dusktodawn_theme_options_add_page() {
 	if ( ! $theme_page )
 		return;
 
+	add_action( "load-$theme_page", 'dusktodawn_theme_options_help' );
+}
+add_action( 'admin_menu', 'dusktodawn_theme_options_add_page' );
+
+function dusktodawn_theme_options_help() {
 	$help = '<p>' . __( 'Some themes provide customization options that are grouped together on a Theme Options screen. If you change themes, options may change or disappear, as they are theme-specific. Your current theme, Dusk To Dawn, provides the following Theme Options:', 'dusktodawn' ) . '</p>' .
 			'<ol>' .
 				'<li>' . __( '<strong>Accent Color</strong>: You can choose the color used for text links and the top line on your site. You can enter the HTML color or hex code, or you can choose visually by clicking the "Select a Color" button to pick from a color wheel.', 'dusktodawn' ) . '</li>' .
@@ -88,9 +92,15 @@ function dusktodawn_theme_options_add_page() {
 			'<p>' . __( '<a href="http://codex.wordpress.org/Appearance_Theme_Options_Screen" target="_blank">Documentation on Theme Options</a>', 'dusktodawn' ) . '</p>' .
 			'<p>' . __( '<a href="http://wordpress.com/support/" target="_blank">Support Forums</a>', 'dusktodawn' ) . '</p>';
 
-	add_contextual_help( $theme_page, $help );
+	$screen = get_current_screen();
+
+	$screen->add_help_tab( array(
+		'title' => __( 'Overview', 'dusktodawn' ),
+		'id' => 'theme-options-help',
+		'content' => $help,
+		)
+	);
 }
-add_action( 'admin_menu', 'dusktodawn_theme_options_add_page' );
 
 // Returns an array of layout options registered for Dusk To Down.
 function dusktodawn_theme_layouts() {
@@ -131,7 +141,8 @@ function theme_options_render_page() {
 	?>
 	<div class="wrap">
 		<?php screen_icon(); ?>
-		<h2><?php printf( __( '%s Theme Options', 'dusktodawn' ), get_current_theme() ); ?></h2>
+		<?php $theme_name = function_exists( 'wp_get_theme' ) ? wp_get_theme() : get_current_theme(); ?>
+		<h2><?php printf( __( '%s Theme Options', 'dusktodawn' ), $theme_name ); ?></h2>
 		<?php settings_errors(); ?>
 
 		<form method="post" action="options.php">
@@ -222,7 +233,19 @@ function dusktodawn_print_link_color_style() {
 		.widget_flickr #flickr_badge_uber_wrapper a:hover,
 		.widget_flickr #flickr_badge_uber_wrapper a:link,
 		.widget_flickr #flickr_badge_uber_wrapper a:active,
-		.widget_flickr #flickr_badge_uber_wrapper a:visited {
+		.widget_flickr #flickr_badge_uber_wrapper a:visited,
+		#infinite-footer .blog-info a,
+		#infinite-footer .blog-credits a,
+		#infinite-footer .blog-info a:hover,
+		#infinite-footer .blog-info a:focus,
+		#infinite-footer .blog-credits a:hover,
+		#infinite-footer .blog-credits a:focus,
+		#infinite-handle span,
+		#infinite-handle span:before,
+		#infinite-handle span:hover,
+		#infinite-handle span:focus,
+		#infinite-handle span:hover:before,
+		#infinite-handle span:focus:before {
 			color: <?php echo $link_color; ?>;
 		}
 		.entry-header,

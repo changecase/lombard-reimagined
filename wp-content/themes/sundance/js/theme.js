@@ -1,5 +1,5 @@
 ( function( $ ) {
-	$( document ).ready( function() {
+	$( window ).load( function() {
 		$( '.featured' ).css( {
 			display: 'none'
 		} );
@@ -11,14 +11,6 @@
 		$( '.featured-posts-wrapper' ).animate( {
 			opacity:1
 		},400 );
-
-		$( '.entry-content' ).fitVids();
-
-		$( '.featured-content' ).fitVids();
-
-	} );
-
-	$( window ).load( function() {
 
 		$( '.featured-posts' ).flexslider( {
 			animation: 'fade',

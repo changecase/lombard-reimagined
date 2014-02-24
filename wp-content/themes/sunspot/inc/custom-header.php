@@ -117,6 +117,7 @@ function sunspot_admin_header_style() {
 		text-decoration: none;
 	}
 	#desc {
+		font-family: Ubuntu, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 		font-size: 11px;
 		letter-spacing: 1px;
 	}

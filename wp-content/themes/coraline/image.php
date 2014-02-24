@@ -1,11 +1,9 @@
 <?php
 /**
- * @package WordPress
- * @subpackage Coraline
+ * @package Coraline
  * @since Coraline 1.0
  */
 
-coraline_set_full_content_width();
 get_header(); ?>
 
 		<div id="content-container" class="image-attachment">
@@ -23,17 +21,16 @@ get_header(); ?>
 								$metadata = wp_get_attachment_metadata();
 								printf( __( '<span class="meta-prep meta-prep-entry-date">Published </span> <span class="entry-date"><abbr class="published" title="%1$s">%2$s</abbr></span>  at <a href="%3$s" title="Link to full-size image">%4$s &times; %5$s</a> in <a href="%6$s" title="Return to %7$s" rel="gallery">%7$s</a>', 'coraline' ),
 									esc_attr( get_the_time() ),
-									get_the_date(),
+									esc_html( get_the_date() ),
 									wp_get_attachment_url(),
 									$metadata['width'],
 									$metadata['height'],
-									get_permalink( $post->post_parent ),
-									get_the_title( $post->post_parent )
+									esc_url( get_permalink( $post->post_parent ) ),
+									esc_attr( get_the_title( $post->post_parent ) )
 								);
-						?>
-							<?php edit_post_link( __( 'Edit', 'coraline' ), '<span class="meta-sep">|</span> <span class="edit-link">', '</span>' ); ?>
 
-						<?php
+								edit_post_link( __( 'Edit', 'coraline' ), '<span class="meta-sep">|</span> <span class="edit-link">', '</span>' );
+
 							else :
 
 							$metadata = wp_get_attachment_metadata();
@@ -63,7 +60,7 @@ get_header(); ?>
 	 */
 	$attachments = array_values( get_children( array( 'post_parent' => $post->post_parent, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => 'ASC', 'orderby' => 'menu_order ID' ) ) );
 	foreach ( $attachments as $k => $attachment ) {
-		if ( $attachment->ID == $post->ID )
+		if ( $attachment->ID == get_the_ID() )
 			break;
 	}
 	$k++;
@@ -81,12 +78,11 @@ get_header(); ?>
 	}
 ?>
 								<a href="<?php echo $next_attachment_url; ?>" title="<?php echo esc_attr( get_the_title() ); ?>" rel="attachment"><?php
-								$attachment_size = apply_filters( 'theme_attachment_size',  800 );
-								echo wp_get_attachment_image( $post->ID, array( $attachment_size, $attachment_size ) ); // filterable image width with, essentially, no limit for image height.
+								echo wp_get_attachment_image( get_the_ID(), 'coraline-image-template' );
 								?></a>
 							</div><!-- .attachment -->
 
-							<?php if ( ! empty( $post->post_excerpt ) ) : ?>
+							<?php if ( has_excerpt() ) : ?>
 							<div class="entry-caption">
 								<?php the_excerpt(); ?>
 							</div>

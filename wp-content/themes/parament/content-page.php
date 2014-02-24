@@ -2,13 +2,9 @@
 /**
  * @package Parament
  */
-
-$class = '';
-if ( '' != get_edit_post_link() )
-	$class = 'has-byline';
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class( $class ); ?>>
+<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 
 	<div class="title">
 		<h2 class="entry-title"><?php the_title(); ?></h2>
@@ -16,8 +12,8 @@ if ( '' != get_edit_post_link() )
 	</div><!-- end title -->
 
 	<div class="entry-content">
-		<?php the_content( __( 'Continue Reading', 'parament' ) ); ?>
 		<?php
+			the_content( __( 'Continue Reading', 'parament' ) );
 			wp_link_pages( array(
 				'after'       => '</div>',
 				'before'      => '<div class="entry-navigation">',
