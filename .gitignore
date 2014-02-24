@@ -1,0 +1,5 @@
+wp-cache-*
+*.swp
+*.swo
+*~
+wp-config.php
