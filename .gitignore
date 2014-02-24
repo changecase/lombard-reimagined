@@ -1,4 +1,5 @@
-wp-cache-*
+**/wp-cache-*.*
+wp-content/cache/
 *.swp
 *.swo
 *~
